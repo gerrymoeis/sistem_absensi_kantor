@@ -15,6 +15,8 @@ func RunMigrations(db *sql.DB) error {
 			full_name VARCHAR(100) NOT NULL,
 			role VARCHAR(20) DEFAULT 'employee',
 			is_active BOOLEAN DEFAULT 1,
+			failed_login_attempts INTEGER DEFAULT 0,
+			locked_until DATETIME NULL,
 			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		)`,

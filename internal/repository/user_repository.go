@@ -19,7 +19,8 @@ func NewUserRepository(db *sql.DB) *UserRepository {
 func (r *UserRepository) FindByUsername(username string) (*model.User, error) {
 	user := &model.User{}
 	err := r.db.QueryRow(`
-		SELECT id, username, password_hash, full_name, role, is_active, created_at, updated_at
+		SELECT id, username, password_hash, full_name, role, is_active, 
+		       failed_login_attempts, locked_until, created_at, updated_at
 		FROM users
 		WHERE username = ?
 	`, username).Scan(
@@ -29,6 +30,8 @@ func (r *UserRepository) FindByUsername(username string) (*model.User, error) {
 		&user.FullName,
 		&user.Role,
 		&user.IsActive,
+		&user.FailedLoginAttempts,
+		&user.LockedUntil,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
@@ -47,7 +50,8 @@ func (r *UserRepository) FindByUsername(username string) (*model.User, error) {
 func (r *UserRepository) FindByID(id int64) (*model.User, error) {
 	user := &model.User{}
 	err := r.db.QueryRow(`
-		SELECT id, username, password_hash, full_name, role, is_active, created_at, updated_at
+		SELECT id, username, password_hash, full_name, role, is_active,
+		       failed_login_attempts, locked_until, created_at, updated_at
 		FROM users
 		WHERE id = ?
 	`, id).Scan(
@@ -57,6 +61,8 @@ func (r *UserRepository) FindByID(id int64) (*model.User, error) {
 		&user.FullName,
 		&user.Role,
 		&user.IsActive,
+		&user.FailedLoginAttempts,
+		&user.LockedUntil,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
@@ -210,4 +216,53 @@ func (r *UserRepository) CheckUsernameExists(username string, excludeID int64) (
 	}
 
 	return count > 0, nil
+}
+
+// IncrementFailedLoginAttempts increments failed login attempts counter
+func (r *UserRepository) IncrementFailedLoginAttempts(userID int64) error {
+	_, err := r.db.Exec(`
+		UPDATE users 
+		SET failed_login_attempts = failed_login_attempts + 1,
+		    updated_at = CURRENT_TIMESTAMP
+		WHERE id = ?
+	`, userID)
+
+	if err != nil {
+		return fmt.Errorf("failed to increment failed login attempts: %w", err)
+	}
+
+	return nil
+}
+
+// ResetFailedLoginAttempts resets failed login attempts counter
+func (r *UserRepository) ResetFailedLoginAttempts(userID int64) error {
+	_, err := r.db.Exec(`
+		UPDATE users 
+		SET failed_login_attempts = 0,
+		    locked_until = NULL,
+		    updated_at = CURRENT_TIMESTAMP
+		WHERE id = ?
+	`, userID)
+
+	if err != nil {
+		return fmt.Errorf("failed to reset failed login attempts: %w", err)
+	}
+
+	return nil
+}
+
+// LockAccount locks user account until specified time
+func (r *UserRepository) LockAccount(userID int64, lockUntil string) error {
+	_, err := r.db.Exec(`
+		UPDATE users 
+		SET locked_until = ?,
+		    updated_at = CURRENT_TIMESTAMP
+		WHERE id = ?
+	`, lockUntil, userID)
+
+	if err != nil {
+		return fmt.Errorf("failed to lock account: %w", err)
+	}
+
+	return nil
 }

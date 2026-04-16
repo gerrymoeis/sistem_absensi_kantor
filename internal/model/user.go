@@ -3,14 +3,16 @@ package model
 import "time"
 
 type User struct {
-	ID           int64     `json:"id"`
-	Username     string    `json:"username"`
-	PasswordHash string    `json:"-"` // Never expose password hash in JSON
-	FullName     string    `json:"full_name"`
-	Role         string    `json:"role"`
-	IsActive     bool      `json:"is_active"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
+	ID                  int64      `json:"id"`
+	Username            string     `json:"username"`
+	PasswordHash        string     `json:"-"` // Never expose password hash in JSON
+	FullName            string     `json:"full_name"`
+	Role                string     `json:"role"`
+	IsActive            bool       `json:"is_active"`
+	FailedLoginAttempts int        `json:"-"` // Don't expose in API
+	LockedUntil         *time.Time `json:"-"` // Don't expose in API
+	CreatedAt           time.Time  `json:"created_at"`
+	UpdatedAt           time.Time  `json:"updated_at"`
 }
 
 type LoginRequest struct {

@@ -68,6 +68,9 @@ func main() {
 	// Apply IP restriction middleware globally
 	router.Use(middleware.IPRestriction(cfg.Security.AllowedIPs))
 
+	// Apply general API rate limiting (60 req/min per IP)
+	router.Use(middleware.APIRateLimiter())
+
 	// Serve static files
 	router.Static("/static", "./web/static")
 	router.LoadHTMLGlob("./web/templates/*")
@@ -77,7 +80,9 @@ func main() {
 		c.Redirect(302, "/login")
 	})
 	router.GET("/login", authHandler.LoginPage)
-	router.POST("/api/auth/login", authHandler.Login)
+	
+	// Login endpoint with stricter rate limiting (5 req/min per IP)
+	router.POST("/api/auth/login", middleware.LoginRateLimiter(), authHandler.Login)
 
 	// Protected routes
 	authorized := router.Group("/")

@@ -162,10 +162,41 @@ func (s *UserService) validateUsername(username string) error {
 	return nil
 }
 
-// validatePassword validates password strength
+// validatePassword validates password strength with complexity rules
 func (s *UserService) validatePassword(password string) error {
+	// Minimum length
 	if len(password) < 8 {
 		return fmt.Errorf("password must be at least 8 characters")
 	}
+
+	// Maximum length (prevent DoS via bcrypt)
+	if len(password) > 72 {
+		return fmt.Errorf("password must not exceed 72 characters")
+	}
+
+	// Check for at least one uppercase letter
+	hasUpper, _ := regexp.MatchString("[A-Z]", password)
+	if !hasUpper {
+		return fmt.Errorf("password must contain at least one uppercase letter")
+	}
+
+	// Check for at least one lowercase letter
+	hasLower, _ := regexp.MatchString("[a-z]", password)
+	if !hasLower {
+		return fmt.Errorf("password must contain at least one lowercase letter")
+	}
+
+	// Check for at least one digit
+	hasDigit, _ := regexp.MatchString("[0-9]", password)
+	if !hasDigit {
+		return fmt.Errorf("password must contain at least one number")
+	}
+
+	// Check for at least one special character
+	hasSpecial, _ := regexp.MatchString("[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]", password)
+	if !hasSpecial {
+		return fmt.Errorf("password must contain at least one special character (!@#$%^&*()_+-=[]{}...)")
+	}
+
 	return nil
 }

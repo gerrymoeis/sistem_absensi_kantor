@@ -8,6 +8,8 @@ absensi-server
 absensi-server.exe
 seed
 seed.exe
+generate-secret
+generate-secret.exe
 
 # Test binary
 *.test
