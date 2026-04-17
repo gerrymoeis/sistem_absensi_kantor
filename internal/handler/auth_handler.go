@@ -105,3 +105,60 @@ func (h *AuthHandler) Me(c *gin.Context) {
 
 	c.JSON(http.StatusOK, user)
 }
+
+// ProfilePage renders profile page
+func (h *AuthHandler) ProfilePage(c *gin.Context) {
+	c.HTML(http.StatusOK, "profile.html", gin.H{
+		"title": "Profil Saya - Sistem Absensi",
+	})
+}
+
+// ChangePassword handles change password request
+func (h *AuthHandler) ChangePassword(c *gin.Context) {
+	userID, exists := middleware.GetUserID(c)
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "User not authenticated",
+		})
+		return
+	}
+
+	var req struct {
+		OldPassword string `json:"old_password" binding:"required"`
+		NewPassword string `json:"new_password" binding:"required,min=6"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid request format. Password must be at least 6 characters",
+		})
+		return
+	}
+
+	// Get client info for logging
+	username, _ := middleware.GetUsername(c)
+	ipAddress := c.ClientIP()
+	userAgent := c.GetHeader("User-Agent")
+
+	// Change password
+	if err := h.authService.ChangePassword(userID, req.OldPassword, req.NewPassword); err != nil {
+		// Log failed attempt
+		h.logService.LogFailed(&userID, model.ActionUpdate,
+			fmt.Sprintf("Failed password change for user %s: %s", username, err.Error()),
+			ipAddress, userAgent)
+
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	// Log successful password change
+	h.logService.LogSuccess(userID, model.ActionUpdate,
+		fmt.Sprintf("User %s changed password successfully", username),
+		ipAddress, userAgent)
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Password changed successfully",
+	})
+}

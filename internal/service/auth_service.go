@@ -118,6 +118,38 @@ func (s *AuthService) GetUserByID(userID int64) (*model.User, error) {
 	return s.userRepo.FindByID(userID)
 }
 
+// ChangePassword changes user's password
+func (s *AuthService) ChangePassword(userID int64, oldPassword, newPassword string) error {
+	// Get user
+	user, err := s.userRepo.FindByID(userID)
+	if err != nil {
+		return fmt.Errorf("user not found")
+	}
+
+	// Verify old password
+	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(oldPassword)); err != nil {
+		return fmt.Errorf("old password is incorrect")
+	}
+
+	// Check if new password is same as old
+	if oldPassword == newPassword {
+		return fmt.Errorf("new password must be different from old password")
+	}
+
+	// Hash new password
+	newHash, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return fmt.Errorf("failed to hash new password: %w", err)
+	}
+
+	// Update password
+	if err := s.userRepo.UpdatePassword(userID, string(newHash)); err != nil {
+		return fmt.Errorf("failed to update password: %w", err)
+	}
+
+	return nil
+}
+
 // HashPassword hashes a password using bcrypt
 func HashPassword(password string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)

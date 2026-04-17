@@ -104,3 +104,44 @@ func (s *AbsensiService) GetHistory(userID int64, limit, offset int) ([]model.Ab
 
 	return s.absensiRepo.FindByUserID(userID, limit, offset)
 }
+
+// GetOwnStats gets user's own attendance statistics
+func (s *AbsensiService) GetOwnStats(userID int64) (map[string]interface{}, error) {
+	// Get current month's date range
+	now := time.Now()
+	firstDay := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
+	lastDay := firstDay.AddDate(0, 1, -1)
+
+	startDate := firstDay.Format("2006-01-02")
+	endDate := lastDay.Format("2006-01-02")
+
+	// Get all attendance records for current month
+	records, err := s.absensiRepo.FindByUserIDAndDateRange(userID, startDate, endDate)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get attendance records: %w", err)
+	}
+
+	// Calculate statistics
+	totalHadir := 0
+	totalTerlambat := 0
+	workStartTime := "08:00:00" // Standard work start time
+
+	for _, record := range records {
+		if record.Status == "hadir" {
+			totalHadir++
+
+			// Check if late (jam masuk > 08:00:00)
+			if record.JamMasuk != nil && *record.JamMasuk > workStartTime {
+				totalTerlambat++
+			}
+		}
+	}
+
+	stats := map[string]interface{}{
+		"total_hadir_bulan_ini": totalHadir,
+		"total_terlambat":       totalTerlambat,
+		"bulan":                 now.Format("January 2006"),
+	}
+
+	return stats, nil
+}

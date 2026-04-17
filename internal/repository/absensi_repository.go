@@ -117,3 +117,40 @@ func (r *AbsensiRepository) FindByUserID(userID int64, limit, offset int) ([]mod
 
 	return results, nil
 }
+
+// FindByUserIDAndDateRange finds absensi records for a user within date range
+func (r *AbsensiRepository) FindByUserIDAndDateRange(userID int64, startDate, endDate string) ([]model.Absensi, error) {
+	rows, err := r.db.Query(`
+		SELECT id, user_id, tanggal, jam_masuk, jam_pulang, status, keterangan, created_at, updated_at
+		FROM absensi
+		WHERE user_id = ? AND tanggal BETWEEN ? AND ?
+		ORDER BY tanggal DESC
+	`, userID, startDate, endDate)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to query absensi: %w", err)
+	}
+	defer rows.Close()
+
+	var results []model.Absensi
+	for rows.Next() {
+		var absensi model.Absensi
+		err := rows.Scan(
+			&absensi.ID,
+			&absensi.UserID,
+			&absensi.Tanggal,
+			&absensi.JamMasuk,
+			&absensi.JamPulang,
+			&absensi.Status,
+			&absensi.Keterangan,
+			&absensi.CreatedAt,
+			&absensi.UpdatedAt,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan absensi: %w", err)
+		}
+		results = append(results, absensi)
+	}
+
+	return results, nil
+}

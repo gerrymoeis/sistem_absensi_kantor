@@ -116,6 +116,7 @@ func main() {
 	// Web pages (no auth middleware - check token in JavaScript)
 	router.GET("/dashboard", absensiHandler.DashboardPage)
 	router.GET("/history", absensiHandler.HistoryPage)
+	router.GET("/profile", authHandler.ProfilePage)
 	router.GET("/admin/dashboard", adminHandler.DashboardPage)
 	
 	// Login endpoint with stricter rate limiting (5 req/min per IP)
@@ -129,12 +130,14 @@ func main() {
 		// Auth endpoints
 		authorized.POST("/auth/logout", authHandler.Logout)
 		authorized.GET("/auth/me", authHandler.Me)
+		authorized.POST("/auth/change-password", authHandler.ChangePassword)
 
 		// Absensi endpoints
 		authorized.POST("/absensi/masuk", absensiHandler.ClockIn)
 		authorized.POST("/absensi/pulang", absensiHandler.ClockOut)
 		authorized.GET("/absensi/today", absensiHandler.GetToday)
 		authorized.GET("/absensi/history", absensiHandler.GetHistory)
+		authorized.GET("/absensi/stats", absensiHandler.GetOwnStats)
 	}
 
 	// Admin routes (removed - moved to adminAPI)
