@@ -82,3 +82,66 @@ func (h *ExportHandler) ExportExcel(c *gin.Context) {
 		return
 	}
 }
+
+// ExportExcelByMonth exports attendance data for a specific month
+func (h *ExportHandler) ExportExcelByMonth(c *gin.Context) {
+	// Get year and month from query params
+	yearStr := c.DefaultQuery("year", fmt.Sprintf("%d", time.Now().Year()))
+	monthStr := c.DefaultQuery("month", fmt.Sprintf("%d", int(time.Now().Month())))
+
+	// Parse year and month
+	var yearInt, monthInt int
+	_, err1 := fmt.Sscanf(yearStr, "%d", &yearInt)
+	_, err2 := fmt.Sscanf(monthStr, "%d", &monthInt)
+
+	if err1 != nil || err2 != nil || monthInt < 1 || monthInt > 12 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid year or month. Use year=2026&month=3",
+		})
+		return
+	}
+
+	// Get admin info for logging
+	adminID, _ := middleware.GetUserID(c)
+	adminUsername, _ := middleware.GetUsername(c)
+	ipAddress := c.ClientIP()
+	userAgent := c.GetHeader("User-Agent")
+
+	// Generate Excel file
+	file, err := h.exportService.ExportToExcelByMonth(yearInt, monthInt)
+	if err != nil {
+		// Log failed export
+		h.logService.LogFailed(&adminID, "export_excel_monthly",
+			fmt.Sprintf("Failed to export Excel for %d-%02d: %s", yearInt, monthInt, err.Error()),
+			ipAddress, userAgent)
+
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to generate Excel file: " + err.Error(),
+		})
+		return
+	}
+
+	// Log successful export
+	monthName := time.Month(monthInt).String()
+	h.logService.LogSuccess(adminID, "export_excel_monthly",
+		fmt.Sprintf("Admin %s exported attendance data for %s %d", adminUsername, monthName, yearInt),
+		ipAddress, userAgent)
+
+	// Set headers for file download
+	filename := fmt.Sprintf("Laporan_Absensi_%s_%d.xlsx", monthName, yearInt)
+	c.Header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", filename))
+	c.Header("Content-Transfer-Encoding", "binary")
+
+	// Write file to response
+	if err := file.Write(c.Writer); err != nil {
+		h.logService.LogFailed(&adminID, "export_excel_monthly",
+			fmt.Sprintf("Failed to write Excel file: %s", err.Error()),
+			ipAddress, userAgent)
+
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to write Excel file",
+		})
+		return
+	}
+}

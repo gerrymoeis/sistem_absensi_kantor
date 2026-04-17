@@ -42,20 +42,21 @@ func (s *ExportService) ExportToExcel(startDate, endDate string) (*excelize.File
 	f.SetActiveSheet(index)
 	f.DeleteSheet("Sheet1") // Remove default sheet
 
-	// Set column widths for better readability
-	f.SetColWidth(sheetName, "A", "A", 6)   // No
-	f.SetColWidth(sheetName, "B", "B", 25)  // Nama Karyawan
-	f.SetColWidth(sheetName, "C", "C", 13)  // Tanggal
-	f.SetColWidth(sheetName, "D", "D", 12)  // Jam Masuk
-	f.SetColWidth(sheetName, "E", "E", 12)  // Jam Pulang
-	f.SetColWidth(sheetName, "F", "F", 15)  // Durasi
-	f.SetColWidth(sheetName, "G", "G", 20)  // Keterangan
+	// Set column widths - DIPERBESAR untuk lebih lega
+	f.SetColWidth(sheetName, "A", "A", 8)   // No - lebih lebar
+	f.SetColWidth(sheetName, "B", "B", 30)  // Nama Karyawan - lebih lebar
+	f.SetColWidth(sheetName, "C", "C", 15)  // Tanggal - lebih lebar
+	f.SetColWidth(sheetName, "D", "D", 14)  // Jam Masuk - lebih lebar
+	f.SetColWidth(sheetName, "E", "E", 14)  // Jam Pulang - lebih lebar
+	f.SetColWidth(sheetName, "F", "F", 18)  // Durasi - lebih lebar
+	f.SetColWidth(sheetName, "G", "G", 15)  // Status - kolom baru
+	f.SetColWidth(sheetName, "H", "H", 35)  // Keterangan - lebih lebar untuk teks panjang
 
 	// Create title style (bold, centered, larger font)
 	titleStyle, err := f.NewStyle(&excelize.Style{
 		Font: &excelize.Font{
 			Bold: true,
-			Size: 14,
+			Size: 16, // Lebih besar
 		},
 		Alignment: &excelize.Alignment{
 			Horizontal: "center",
@@ -70,7 +71,7 @@ func (s *ExportService) ExportToExcel(startDate, endDate string) (*excelize.File
 	headerStyle, err := f.NewStyle(&excelize.Style{
 		Font: &excelize.Font{
 			Bold:  true,
-			Size:  11,
+			Size:  12, // Lebih besar
 			Color: "FFFFFF",
 		},
 		Fill: excelize.Fill{
@@ -121,17 +122,18 @@ func (s *ExportService) ExportToExcel(startDate, endDate string) (*excelize.File
 		Alignment: &excelize.Alignment{
 			Horizontal: "left",
 			Vertical:   "center",
+			WrapText:   true, // Enable text wrapping untuk keterangan panjang
 		},
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to create data left style: %w", err)
 	}
 
-	// Create footer style (italic, smaller font)
+	// Create footer style (BOLD, BIGGER FONT - bukan italic)
 	footerStyle, err := f.NewStyle(&excelize.Style{
 		Font: &excelize.Font{
-			Italic: true,
-			Size:   10,
+			Bold: true, // BOLD bukan italic
+			Size: 12,   // Lebih besar dari 10
 		},
 		Alignment: &excelize.Alignment{
 			Horizontal: "left",
@@ -144,28 +146,28 @@ func (s *ExportService) ExportToExcel(startDate, endDate string) (*excelize.File
 
 	// Write title
 	f.SetCellValue(sheetName, "A1", "LAPORAN ABSENSI KARYAWAN")
-	f.MergeCell(sheetName, "A1", "G1")
-	f.SetCellStyle(sheetName, "A1", "G1", titleStyle)
-	f.SetRowHeight(sheetName, 1, 25)
+	f.MergeCell(sheetName, "A1", "H1") // H karena sekarang ada 8 kolom
+	f.SetCellStyle(sheetName, "A1", "H1", titleStyle)
+	f.SetRowHeight(sheetName, 1, 30) // Lebih tinggi
 
 	// Write period
 	period := fmt.Sprintf("Periode: %s s/d %s", startDate, endDate)
 	f.SetCellValue(sheetName, "A2", period)
-	f.MergeCell(sheetName, "A2", "G2")
-	f.SetCellStyle(sheetName, "A2", "G2", titleStyle)
-	f.SetRowHeight(sheetName, 2, 20)
+	f.MergeCell(sheetName, "A2", "H2")
+	f.SetCellStyle(sheetName, "A2", "H2", titleStyle)
+	f.SetRowHeight(sheetName, 2, 25) // Lebih tinggi
 
 	// Add empty row for spacing
-	f.SetRowHeight(sheetName, 3, 5)
+	f.SetRowHeight(sheetName, 3, 8) // Lebih tinggi spacing
 
-	// Write headers
-	headers := []string{"No", "Nama Karyawan", "Tanggal", "Jam Masuk", "Jam Pulang", "Durasi", "Keterangan"}
+	// Write headers - TAMBAH KOLOM STATUS
+	headers := []string{"No", "Nama Karyawan", "Tanggal", "Jam Masuk", "Jam Pulang", "Durasi", "Status", "Keterangan"}
 	for i, header := range headers {
 		cell, _ := excelize.CoordinatesToCellName(i+1, 4)
 		f.SetCellValue(sheetName, cell, header)
 		f.SetCellStyle(sheetName, cell, cell, headerStyle)
 	}
-	f.SetRowHeight(sheetName, 4, 22)
+	f.SetRowHeight(sheetName, 4, 25) // Lebih tinggi
 
 	// Write data rows
 	row := 5
@@ -209,8 +211,19 @@ func (s *ExportService) ExportToExcel(startDate, endDate string) (*excelize.File
 		f.SetCellValue(sheetName, cell, durasi)
 		f.SetCellStyle(sheetName, cell, cell, dataCenterStyle)
 
-		// Keterangan - left aligned
+		// Status - centered (KOLOM BARU)
 		cell, _ = excelize.CoordinatesToCellName(7, row)
+		status := "Hadir" // Default
+		if record["status"] != nil {
+			if statusStr, ok := record["status"].(string); ok {
+				status = s.formatStatus(statusStr)
+			}
+		}
+		f.SetCellValue(sheetName, cell, status)
+		f.SetCellStyle(sheetName, cell, cell, dataCenterStyle)
+
+		// Keterangan - left aligned with wrap text
+		cell, _ = excelize.CoordinatesToCellName(8, row)
 		if record["keterangan"] != nil {
 			f.SetCellValue(sheetName, cell, record["keterangan"])
 		} else {
@@ -224,7 +237,7 @@ func (s *ExportService) ExportToExcel(startDate, endDate string) (*excelize.File
 	// Add empty row for spacing before footer
 	row++
 
-	// Write footer with better formatting
+	// Write footer with BOLD and BIGGER font
 	footerRow := row
 	totalText := fmt.Sprintf("Total Data: %d record", len(records))
 	f.SetCellValue(sheetName, fmt.Sprintf("A%d", footerRow), totalText)
@@ -264,4 +277,33 @@ func (s *ExportService) calculateDuration(jamMasuk, jamPulang interface{}) strin
 	minutes := int(duration.Minutes()) % 60
 
 	return fmt.Sprintf("%d jam %d menit", hours, minutes)
+}
+
+// formatStatus converts status code to readable Indonesian text
+func (s *ExportService) formatStatus(status string) string {
+	statusMap := map[string]string{
+		"hadir": "Hadir",
+		"izin":  "Izin",
+		"sakit": "Sakit",
+		"cuti":  "Cuti",
+		"alpha": "Alpha",
+	}
+
+	if formatted, ok := statusMap[status]; ok {
+		return formatted
+	}
+	return "Hadir" // Default
+}
+
+// ExportToExcelByMonth exports attendance data for a specific month
+func (s *ExportService) ExportToExcelByMonth(year int, month int) (*excelize.File, error) {
+	// Calculate start and end date for the month
+	startDate := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.Local)
+	endDate := startDate.AddDate(0, 1, -1) // Last day of the month
+
+	startDateStr := startDate.Format("2006-01-02")
+	endDateStr := endDate.Format("2006-01-02")
+
+	// Use the existing ExportToExcel method
+	return s.ExportToExcel(startDateStr, endDateStr)
 }
