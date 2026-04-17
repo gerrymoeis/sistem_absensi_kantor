@@ -81,6 +81,11 @@ func main() {
 	router := gin.New()
 	router.Use(gin.Recovery())
 	
+	// Add logger only in debug mode
+	if cfg.Server.Mode == "debug" {
+		router.Use(gin.Logger())
+	}
+	
 	// Configure trusted proxies (security)
 	// Set to nil if not behind a proxy, or specify trusted proxy IPs
 	if err := router.SetTrustedProxies(nil); err != nil {
@@ -106,36 +111,37 @@ func main() {
 	})
 	router.GET("/login", authHandler.LoginPage)
 	
+	// Web pages (no auth middleware - check token in JavaScript)
+	router.GET("/dashboard", absensiHandler.DashboardPage)
+	router.GET("/history", absensiHandler.HistoryPage)
+	router.GET("/admin/dashboard", adminHandler.DashboardPage)
+	
 	// Login endpoint with stricter rate limiting (5 req/min per IP)
 	router.POST("/api/auth/login", middleware.LoginRateLimiter(), authHandler.Login)
 
-	// Protected routes
-	authorized := router.Group("/")
+	// Protected API routes (require authentication)
+	authorized := router.Group("/api")
 	authorized.Use(middleware.AuthRequired(cfg.Security.JWTSecret))
 	authorized.Use(middleware.APIRateLimiter()) // Rate limit authenticated routes
 	{
-		// Web pages
-		authorized.GET("/dashboard", absensiHandler.DashboardPage)
-		authorized.GET("/history", absensiHandler.HistoryPage)
+		// Auth endpoints
+		authorized.POST("/auth/logout", authHandler.Logout)
+		authorized.GET("/auth/me", authHandler.Me)
 
-		// API endpoints
-		authorized.POST("/api/auth/logout", authHandler.Logout)
-		authorized.GET("/api/auth/me", authHandler.Me)
-
-		authorized.POST("/api/absensi/masuk", absensiHandler.ClockIn)
-		authorized.POST("/api/absensi/pulang", absensiHandler.ClockOut)
-		authorized.GET("/api/absensi/today", absensiHandler.GetToday)
-		authorized.GET("/api/absensi/history", absensiHandler.GetHistory)
+		// Absensi endpoints
+		authorized.POST("/absensi/masuk", absensiHandler.ClockIn)
+		authorized.POST("/absensi/pulang", absensiHandler.ClockOut)
+		authorized.GET("/absensi/today", absensiHandler.GetToday)
+		authorized.GET("/absensi/history", absensiHandler.GetHistory)
 	}
 
-	// Admin routes
-	admin := router.Group("/admin")
-	admin.Use(middleware.AuthRequired(cfg.Security.JWTSecret))
-	admin.Use(middleware.AdminRequired())
-	{
-		// Admin pages
-		admin.GET("/dashboard", adminHandler.DashboardPage)
-	}
+	// Admin routes (removed - moved to adminAPI)
+	// admin := router.Group("/admin")
+	// admin.Use(middleware.AuthRequired(cfg.Security.JWTSecret))
+	// admin.Use(middleware.AdminRequired())
+	// {
+	// 	admin.GET("/dashboard", adminHandler.DashboardPage)
+	// }
 
 	// Admin API routes
 	adminAPI := router.Group("/api/admin")
