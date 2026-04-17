@@ -50,11 +50,13 @@ func main() {
 	logService := service.NewActivityLogService(activityLogRepo)
 	adminService := service.NewAdminService(adminRepo, userRepo)
 	userService := service.NewUserService(userRepo)
+	exportService := service.NewExportService(adminRepo)
 
 	// Initialize handlers
 	authHandler := handler.NewAuthHandler(authService, logService)
 	absensiHandler := handler.NewAbsensiHandler(absensiService, logService)
 	adminHandler := handler.NewAdminHandler(adminService, userService, logService)
+	exportHandler := handler.NewExportHandler(exportService, logService)
 
 	// Setup Gin router
 	if cfg.Server.Mode == "release" {
@@ -132,6 +134,9 @@ func main() {
 		// Activity logs
 		adminAPI.GET("/logs", adminHandler.GetActivityLogs)
 		adminAPI.GET("/logs/user/:id", adminHandler.GetUserActivityLogs)
+		
+		// Export
+		adminAPI.GET("/export/excel", exportHandler.ExportExcel)
 	}
 
 	// Start server
