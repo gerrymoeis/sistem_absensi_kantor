@@ -80,32 +80,76 @@
                 </div>
             </div>
 
-            <!-- Action Buttons -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                <button 
-                    id="btn-masuk" 
-                    onclick="clockIn()"
-                    class="group bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-6 px-6 rounded-xl text-lg shadow-lg hover:shadow-xl transition duration-200 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                >
-                    <div class="flex items-center justify-center space-x-3">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
-                        </svg>
-                        <span>Absen Masuk</span>
+            <!-- Absensi Form Card -->
+            <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Form Absensi</h2>
+                
+                <!-- Status Dropdown -->
+                <div class="mb-4">
+                    <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Status Kehadiran
+                    </label>
+                    <div class="relative">
+                        <select 
+                            id="status" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition appearance-none bg-white"
+                        >
+                            <option value="hadir">✓ Hadir</option>
+                            <option value="izin">📋 Izin</option>
+                            <option value="sakit">🏥 Sakit</option>
+                            <option value="cuti">🏖️ Cuti</option>
+                            <option value="alpha">❌ Alpha</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </div>
                     </div>
-                </button>
-                <button 
-                    id="btn-pulang" 
-                    onclick="clockOut()"
-                    class="group bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold py-6 px-6 rounded-xl text-lg shadow-lg hover:shadow-xl transition duration-200 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                >
-                    <div class="flex items-center justify-center space-x-3">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-                        </svg>
-                        <span>Absen Pulang</span>
-                    </div>
-                </button>
+                    <p class="text-xs text-gray-500 mt-1">Pilih status kehadiran Anda hari ini</p>
+                </div>
+
+                <!-- Keterangan Textarea -->
+                <div class="mb-6">
+                    <label for="keterangan" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Keterangan
+                    </label>
+                    <textarea 
+                        id="keterangan" 
+                        rows="4" 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
+                        placeholder="Masukkan keterangan atau alasan (opsional untuk Hadir, wajib untuk Izin/Sakit/Cuti/Alpha)..."
+                    ></textarea>
+                    <p class="text-xs text-gray-500 mt-1">Berikan penjelasan detail jika Anda izin, sakit, cuti, atau alpha</p>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <button 
+                        id="btn-masuk" 
+                        onclick="clockIn()"
+                        class="group bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-4 px-6 rounded-xl text-lg shadow-lg hover:shadow-xl transition duration-200 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                    >
+                        <div class="flex items-center justify-center space-x-3">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                            </svg>
+                            <span>Absen Masuk</span>
+                        </div>
+                    </button>
+                    <button 
+                        id="btn-pulang" 
+                        onclick="clockOut()"
+                        class="group bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold py-4 px-6 rounded-xl text-lg shadow-lg hover:shadow-xl transition duration-200 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                    >
+                        <div class="flex items-center justify-center space-x-3">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                            </svg>
+                            <span>Absen Pulang</span>
+                        </div>
+                    </button>
+                </div>
             </div>
 
             <!-- Quick Link -->
@@ -230,13 +274,26 @@
 
         async function clockIn() {
             const btn = document.getElementById('btn-masuk');
+            const status = document.getElementById('status').value;
+            const keterangan = document.getElementById('keterangan').value.trim();
+            
+            // Validation: keterangan wajib untuk non-hadir
+            if (status !== 'hadir' && !keterangan) {
+                showToast(`Keterangan wajib diisi untuk status "${status.toUpperCase()}"`, 'error');
+                document.getElementById('keterangan').focus();
+                return;
+            }
+            
             btn.disabled = true;
             btn.innerHTML = '<div class="flex items-center justify-center space-x-2"><div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div><span>Memproses...</span></div>';
             
             try {
                 const response = await fetchWithAuth('/api/absensi/masuk', {
                     method: 'POST',
-                    body: JSON.stringify({}),
+                    body: JSON.stringify({ 
+                        status: status,
+                        keterangan: keterangan || null
+                    }),
                 });
                 
                 const data = await response.json();
@@ -244,6 +301,9 @@
                 if (response.ok) {
                     showToast(data.message, 'success');
                     await loadTodayStatus();
+                    // Reset form
+                    document.getElementById('status').value = 'hadir';
+                    document.getElementById('keterangan').value = '';
                 } else {
                     showToast(data.error, 'error');
                 }
@@ -257,13 +317,17 @@
 
         async function clockOut() {
             const btn = document.getElementById('btn-pulang');
+            const keterangan = document.getElementById('keterangan').value.trim();
+            
             btn.disabled = true;
             btn.innerHTML = '<div class="flex items-center justify-center space-x-2"><div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div><span>Memproses...</span></div>';
             
             try {
                 const response = await fetchWithAuth('/api/absensi/pulang', {
                     method: 'POST',
-                    body: JSON.stringify({}),
+                    body: JSON.stringify({ 
+                        keterangan: keterangan || null
+                    }),
                 });
                 
                 const data = await response.json();
@@ -271,6 +335,8 @@
                 if (response.ok) {
                     showToast(data.message, 'success');
                     await loadTodayStatus();
+                    // Reset form
+                    document.getElementById('keterangan').value = '';
                 } else {
                     showToast(data.error, 'error');
                 }
@@ -292,6 +358,24 @@
 
         // Load status on page load
         loadTodayStatus();
+
+        // Dynamic status change handler
+        document.getElementById('status').addEventListener('change', function() {
+            const keteranganField = document.getElementById('keterangan');
+            const keteranganLabel = keteranganField.previousElementSibling.previousElementSibling;
+            const keteranganHint = keteranganField.nextElementSibling;
+            
+            if (this.value === 'hadir') {
+                keteranganField.placeholder = 'Masukkan keterangan (opsional)...';
+                keteranganHint.textContent = 'Keterangan bersifat opsional untuk status Hadir';
+                keteranganField.classList.remove('border-red-300', 'ring-2', 'ring-red-200');
+            } else {
+                keteranganField.placeholder = `Masukkan alasan ${this.value} (wajib diisi)...`;
+                keteranganHint.textContent = `⚠️ Keterangan WAJIB diisi untuk status ${this.value.toUpperCase()}`;
+                keteranganHint.classList.add('text-red-600', 'font-semibold');
+                keteranganField.classList.add('border-red-300');
+            }
+        });
     </script>
 </body>
 </html>
