@@ -109,12 +109,19 @@ func (rl *RateLimiter) cleanupVisitors() {
 	for range ticker.C {
 		rl.mu.Lock()
 		now := time.Now()
+		toDelete := make([]string, 0, 10) // Pre-allocate for efficiency
+		
 		for ip, visitor := range rl.visitors {
 			visitor.mu.Lock()
 			if now.Sub(visitor.lastSeen) > 10*time.Minute {
-				delete(rl.visitors, ip)
+				toDelete = append(toDelete, ip)
 			}
 			visitor.mu.Unlock()
+		}
+		
+		// Delete in separate loop to avoid map iteration issues
+		for _, ip := range toDelete {
+			delete(rl.visitors, ip)
 		}
 		rl.mu.Unlock()
 	}

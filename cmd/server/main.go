@@ -14,6 +14,19 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// securityHeaders adds security headers to all responses
+func securityHeaders() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Header("X-Content-Type-Options", "nosniff")
+		c.Header("X-Frame-Options", "DENY")
+		c.Header("X-XSS-Protection", "1; mode=block")
+		c.Header("Referrer-Policy", "strict-origin-when-cross-origin")
+		// Only add HSTS if using HTTPS
+		// c.Header("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+		c.Next()
+	}
+}
+
 func main() {
 	// Load .env file
 	if err := godotenv.Load(); err != nil {
@@ -59,19 +72,29 @@ func main() {
 	exportHandler := handler.NewExportHandler(exportService, logService)
 
 	// Setup Gin router
-	if cfg.Server.Mode == "release" {
-		gin.SetMode(gin.ReleaseMode)
+	// Set release mode by default for production
+	gin.SetMode(gin.ReleaseMode)
+	if cfg.Server.Mode == "debug" {
+		gin.SetMode(gin.DebugMode)
 	}
 
 	router := gin.New()
-	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
-
+	
+	// Configure trusted proxies (security)
+	// Set to nil if not behind a proxy, or specify trusted proxy IPs
+	if err := router.SetTrustedProxies(nil); err != nil {
+		log.Printf("Warning: Failed to set trusted proxies: %v", err)
+	}
+	
+	// Add security headers
+	router.Use(securityHeaders())
+	
 	// Apply IP restriction middleware globally
 	router.Use(middleware.IPRestriction(cfg.Security.AllowedIPs))
 
-	// Apply general API rate limiting (60 req/min per IP)
-	router.Use(middleware.APIRateLimiter())
+	// Apply rate limiting only to API routes (not static files)
+	// Removed global rate limiter for better performance
 
 	// Serve static files
 	router.Static("/static", "./web/static")
@@ -89,6 +112,7 @@ func main() {
 	// Protected routes
 	authorized := router.Group("/")
 	authorized.Use(middleware.AuthRequired(cfg.Security.JWTSecret))
+	authorized.Use(middleware.APIRateLimiter()) // Rate limit authenticated routes
 	{
 		// Web pages
 		authorized.GET("/dashboard", absensiHandler.DashboardPage)
@@ -117,6 +141,7 @@ func main() {
 	adminAPI := router.Group("/api/admin")
 	adminAPI.Use(middleware.AuthRequired(cfg.Security.JWTSecret))
 	adminAPI.Use(middleware.AdminRequired())
+	adminAPI.Use(middleware.APIRateLimiter()) // Rate limit admin API
 	{
 		adminAPI.GET("/stats", adminHandler.GetStatistics)
 		adminAPI.GET("/absensi", adminHandler.GetAllAbsensi)
