@@ -150,7 +150,12 @@
                     
                     btnText.textContent = 'Berhasil!';
                     setTimeout(() => {
-                        window.location.href = '/dashboard';
+                        // Role-based redirect
+                        if (data.user.role === 'admin') {
+                            window.location.href = '/admin/dashboard';
+                        } else {
+                            window.location.href = '/dashboard';
+                        }
                     }, 500);
                 } else {
                     setLoading(false);

@@ -81,9 +81,11 @@ func main() {
 	router := gin.New()
 	router.Use(gin.Recovery())
 	
-	// Add logger only in debug mode
+	// Smart logging: Always log requests, but control verbosity
 	if cfg.Server.Mode == "debug" {
-		router.Use(gin.Logger())
+		router.Use(gin.Logger()) // Full debug logging with route list
+	} else {
+		router.Use(middleware.ProductionLogger()) // Clean production logging
 	}
 	
 	// Configure trusted proxies (security)
