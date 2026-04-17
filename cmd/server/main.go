@@ -137,6 +137,7 @@ func main() {
 		
 		// Export
 		adminAPI.GET("/export/excel", exportHandler.ExportExcel)
+		adminAPI.GET("/export/word", exportHandler.ExportWord)
 	}
 
 	// Start server

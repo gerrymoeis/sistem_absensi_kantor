@@ -6,6 +6,10 @@ import (
 
 	"absensi-app/internal/repository"
 
+	"github.com/unidoc/unioffice/color"
+	"github.com/unidoc/unioffice/document"
+	"github.com/unidoc/unioffice/measurement"
+	"github.com/unidoc/unioffice/schema/soo/wml"
 	"github.com/xuri/excelize/v2"
 )
 
@@ -217,4 +221,194 @@ func (s *ExportService) calculateDuration(jamMasuk, jamPulang interface{}) strin
 	minutes := int(duration.Minutes()) % 60
 
 	return fmt.Sprintf("%d jam %d menit", hours, minutes)
+}
+
+
+// ExportToWord exports attendance data to Word format
+func (s *ExportService) ExportToWord(startDate, endDate string) (*document.Document, error) {
+	// Create new Word document
+	doc := document.New()
+
+	// Add title
+	para := doc.AddParagraph()
+	run := para.AddRun()
+	run.AddText("LAPORAN ABSENSI KARYAWAN")
+	run.Properties().SetBold(true)
+	run.Properties().SetSize(16)
+	para.Properties().SetAlignment(wml.ST_JcCenter)
+
+	// Add empty line
+	doc.AddParagraph()
+
+	// Add period
+	para = doc.AddParagraph()
+	run = para.AddRun()
+	period := fmt.Sprintf("Periode: %s s/d %s", startDate, endDate)
+	run.AddText(period)
+	run.Properties().SetBold(true)
+	run.Properties().SetSize(12)
+	para.Properties().SetAlignment(wml.ST_JcCenter)
+
+	// Add empty line
+	doc.AddParagraph()
+
+	// Get data from repository
+	records, err := s.adminRepo.GetAllAbsensi(1000, 0, startDate, endDate)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get attendance data: %w", err)
+	}
+
+	// Create table
+	table := doc.AddTable()
+	table.Properties().SetWidthPercent(100)
+
+	// Set table borders
+	borders := table.Properties().Borders()
+	borders.SetAll(wml.ST_BorderSingle, color.Auto, measurement.Point)
+
+	// Add header row
+	headers := []string{"No", "Nama Karyawan", "Tanggal", "Jam Masuk", "Jam Pulang", "Durasi", "Keterangan"}
+	headerRow := table.AddRow()
+	for _, header := range headers {
+		cell := headerRow.AddCell()
+		para := cell.AddParagraph()
+		run := para.AddRun()
+		run.AddText(header)
+		run.Properties().SetBold(true)
+		para.Properties().SetAlignment(wml.ST_JcCenter)
+	}
+
+	// Add data rows
+	for i, record := range records {
+		row := table.AddRow()
+
+		// No
+		cell := row.AddCell()
+		para := cell.AddParagraph()
+		para.AddRun().AddText(fmt.Sprintf("%d", i+1))
+		para.Properties().SetAlignment(wml.ST_JcCenter)
+
+		// Nama Karyawan
+		cell = row.AddCell()
+		para = cell.AddParagraph()
+		fullName := ""
+		if name, ok := record["full_name"].(string); ok {
+			fullName = name
+		}
+		para.AddRun().AddText(fullName)
+
+		// Tanggal
+		cell = row.AddCell()
+		para = cell.AddParagraph()
+		tanggal := ""
+		if date, ok := record["tanggal"].(string); ok {
+			tanggal = date
+		}
+		para.AddRun().AddText(tanggal)
+		para.Properties().SetAlignment(wml.ST_JcCenter)
+
+		// Jam Masuk
+		cell = row.AddCell()
+		para = cell.AddParagraph()
+		jamMasuk := "-"
+		if record["jam_masuk"] != nil {
+			if jm, ok := record["jam_masuk"].(string); ok {
+				jamMasuk = jm
+			}
+		}
+		para.AddRun().AddText(jamMasuk)
+		para.Properties().SetAlignment(wml.ST_JcCenter)
+
+		// Jam Pulang
+		cell = row.AddCell()
+		para = cell.AddParagraph()
+		jamPulang := "-"
+		if record["jam_pulang"] != nil {
+			if jp, ok := record["jam_pulang"].(string); ok {
+				jamPulang = jp
+			}
+		}
+		para.AddRun().AddText(jamPulang)
+		para.Properties().SetAlignment(wml.ST_JcCenter)
+
+		// Durasi
+		cell = row.AddCell()
+		para = cell.AddParagraph()
+		durasi := s.calculateDuration(record["jam_masuk"], record["jam_pulang"])
+		para.AddRun().AddText(durasi)
+		para.Properties().SetAlignment(wml.ST_JcCenter)
+
+		// Keterangan
+		cell = row.AddCell()
+		para = cell.AddParagraph()
+		keterangan := "-"
+		if record["keterangan"] != nil {
+			if ket, ok := record["keterangan"].(string); ok {
+				keterangan = ket
+			}
+		}
+		para.AddRun().AddText(keterangan)
+	}
+
+	// Add footer
+	doc.AddParagraph()
+	para = doc.AddParagraph()
+	run = para.AddRun()
+	footerText := fmt.Sprintf("Total: %d record", len(records))
+	run.AddText(footerText)
+	run.Properties().SetItalic(true)
+
+	para = doc.AddParagraph()
+	run = para.AddRun()
+	generatedText := fmt.Sprintf("Digenerate: %s", time.Now().Format("02 January 2006 15:04"))
+	run.AddText(generatedText)
+	run.Properties().SetItalic(true)
+
+	// Add signature section
+	doc.AddParagraph()
+	doc.AddParagraph()
+
+	// Create signature table
+	sigTable := doc.AddTable()
+	sigTable.Properties().SetWidthPercent(100)
+	sigTable.Properties().Borders().SetAll(wml.ST_BorderNone, color.Auto, 0)
+
+	// Row 1: Titles
+	row := sigTable.AddRow()
+	for _, title := range []string{"Mengetahui,", "Menyetujui,", "Dibuat oleh,"} {
+		cell := row.AddCell()
+		para := cell.AddParagraph()
+		para.AddRun().AddText(title)
+		para.Properties().SetAlignment(wml.ST_JcCenter)
+	}
+
+	// Row 2: Positions
+	row = sigTable.AddRow()
+	for _, position := range []string{"Manager", "HRD", "Admin"} {
+		cell := row.AddCell()
+		para := cell.AddParagraph()
+		para.AddRun().AddText(position)
+		para.Properties().SetAlignment(wml.ST_JcCenter)
+	}
+
+	// Row 3: Empty space for signature
+	row = sigTable.AddRow()
+	for i := 0; i < 3; i++ {
+		cell := row.AddCell()
+		para := cell.AddParagraph()
+		para.AddRun().AddText("")
+		para.AddRun().AddBreak()
+		para.AddRun().AddBreak()
+	}
+
+	// Row 4: Name lines
+	row = sigTable.AddRow()
+	for i := 0; i < 3; i++ {
+		cell := row.AddCell()
+		para := cell.AddParagraph()
+		para.AddRun().AddText("(_______________)")
+		para.Properties().SetAlignment(wml.ST_JcCenter)
+	}
+
+	return doc, nil
 }
