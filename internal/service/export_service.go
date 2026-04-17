@@ -45,7 +45,7 @@ func (s *ExportService) ExportToExcel(startDate, endDate string) (*excelize.File
 	// Set column widths - DIPERBESAR untuk lebih lega
 	f.SetColWidth(sheetName, "A", "A", 8)   // No - lebih lebar
 	f.SetColWidth(sheetName, "B", "B", 30)  // Nama Karyawan - lebih lebar
-	f.SetColWidth(sheetName, "C", "C", 18)  // Tanggal - DIPERBESAR LAGI (dari 15)
+	f.SetColWidth(sheetName, "C", "C", 25)  // Tanggal - DIPERBESAR LAGI menjadi 25 (dari 18)
 	f.SetColWidth(sheetName, "D", "D", 14)  // Jam Masuk - lebih lebar
 	f.SetColWidth(sheetName, "E", "E", 14)  // Jam Pulang - lebih lebar
 	f.SetColWidth(sheetName, "F", "F", 18)  // Durasi - lebih lebar
