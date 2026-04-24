@@ -1,4 +1,4 @@
-# Sistem Absensi Kantor 🏢
+# Sistem Absensi Kantor
 
 Sistem absensi berbasis web yang secure dan robust, hanya dapat diakses dari jaringan WiFi kantor menggunakan IP restriction. Dirancang untuk memastikan karyawan benar-benar hadir di kantor saat melakukan absensi.
 
@@ -9,53 +9,53 @@ Sistem absensi berbasis web yang secure dan robust, hanya dapat diakses dari jar
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [Features](#-features)
-- [Tech Stack](#-tech-stack)
-- [Security](#-security)
-- [Quick Start](#-quick-start)
-- [Production Deployment](#-production-deployment)
-- [Project Structure](#-project-structure)
-- [API Documentation](#-api-documentation)
-- [Configuration](#-configuration)
-- [Development](#-development)
-- [Troubleshooting](#-troubleshooting)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Security](#security)
+- [Quick Start](#quick-start)
+- [Production Deployment](#production-deployment)
+- [Project Structure](#project-structure)
+- [API Documentation](#api-documentation)
+- [Configuration](#configuration)
+- [Development](#development)
+- [Troubleshooting](#troubleshooting)
 
 ---
 
-## ✨ Features
+## Features
 
 ### Core Features (Phase 1 & 2 - COMPLETE)
-- ✅ **IP Restriction** - Hanya bisa diakses dari WiFi kantor (CIDR support)
-- ✅ **User Authentication** - JWT + bcrypt password hashing
-- ✅ **Absen Masuk/Pulang** - Clock in/out dengan timestamp
-- ✅ **Status Kehadiran** - Hadir, Izin, Sakit, Cuti, Alpha
-- ✅ **Keterangan Detail** - Textarea untuk alasan izin/sakit/cuti
-- ✅ **Riwayat Absensi** - View attendance history
-- ✅ **Admin Dashboard** - Monitor semua karyawan dengan statistics
-- ✅ **User Management** - CRUD users (admin only)
-- ✅ **Activity Logging** - Comprehensive audit trail
-- ✅ **Excel Export** - Export laporan ke Excel (All Data & Monthly)
-- ✅ **Modern UI** - Responsive design dengan Tailwind CSS
-- ✅ **Rate Limiting** - Protection against brute force attacks
-- ✅ **Security Headers** - XSS, Clickjacking, MIME-sniffing protection
+- **IP Restriction** - Hanya bisa diakses dari WiFi kantor (CIDR support)
+- **User Authentication** - JWT + bcrypt password hashing
+- **Absen Masuk/Pulang** - Clock in/out dengan timestamp
+- **Status Kehadiran** - Hadir, Izin, Sakit, Cuti, Alpha
+- **Keterangan Detail** - Textarea untuk alasan izin/sakit/cuti
+- **Riwayat Absensi** - View attendance history
+- **Admin Dashboard** - Monitor semua karyawan dengan statistics
+- **User Management** - CRUD users (admin only)
+- **Activity Logging** - Comprehensive audit trail
+- **Excel Export** - Export laporan ke Excel (All Data & Monthly)
+- **Modern UI** - Responsive design dengan Tailwind CSS
+- **Rate Limiting** - Protection against brute force attacks
+- **Security Headers** - XSS, Clickjacking, MIME-sniffing protection
 
 ### Security Features
-- 🔒 Multi-layer security (IP → Auth → Role)
-- 🔒 Password hashing dengan bcrypt (cost 10)
-- 🔒 JWT authentication dengan 24h expiration
-- 🔒 SQL injection prevention (parameterized queries)
-- 🔒 XSS protection (security headers)
-- 🔒 Role-based access control (RBAC)
-- 🔒 Rate limiting (5 req/min login, 60 req/min API)
-- 🔒 Comprehensive audit logging
-- 🔒 Soft delete (data preservation)
-- 🔒 Trusted proxies configuration
+- Multi-layer security (IP → Auth → Role)
+- Password hashing dengan bcrypt (cost 10)
+- JWT authentication dengan 24h expiration
+- SQL injection prevention (parameterized queries)
+- XSS protection (security headers)
+- Role-based access control (RBAC)
+- Rate limiting (5 req/min login, 60 req/min API)
+- Comprehensive audit logging
+- Soft delete (data preservation)
+- Trusted proxies configuration
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Component | Technology | Version |
 |-----------|-----------|---------|
@@ -76,9 +76,9 @@ Sistem absensi berbasis web yang secure dan robust, hanya dapat diakses dari jar
 
 ---
 
-## 🔒 Security
+## Security
 
-### Security Score: 9/10 ✅
+### Security Score: 9/10
 See [Security Audit Report](../docs_and_backup/security_audit_report.md) for details.
 
 ### Security Layers
@@ -89,20 +89,20 @@ See [Security Audit Report](../docs_and_backup/security_audit_report.md) for det
 5. **Security Headers** - XSS, Clickjacking protection
 
 ### Key Security Features
-- ✅ Bcrypt password hashing (cost 10)
-- ✅ Parameterized SQL queries (SQL injection prevention)
-- ✅ Security headers (XSS, Clickjacking, MIME-sniffing)
-- ✅ JWT signature verification
-- ✅ Role-based access control (RBAC)
-- ✅ Rate limiting (login: 5/min, API: 60/min)
-- ✅ Comprehensive audit logging
-- ✅ Soft delete (data preservation)
-- ✅ Trusted proxies configuration
-- ✅ Release mode by default (no debug info leak)
+- Bcrypt password hashing (cost 10)
+- Parameterized SQL queries (SQL injection prevention)
+- Security headers (XSS, Clickjacking, MIME-sniffing)
+- JWT signature verification
+- Role-based access control (RBAC)
+- Rate limiting (login: 5/min, API: 60/min)
+- Comprehensive audit logging
+- Soft delete (data preservation)
+- Trusted proxies configuration
+- Release mode by default (no debug info leak)
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 - Go 1.25 or higher
@@ -169,7 +169,7 @@ go run cmd/seed/main.go
 - Username: `admin`
 - Password: `admin123`
 
-⚠️ **IMPORTANT**: Change admin password after first login!
+**IMPORTANT**: Change admin password after first login!
 
 ### 6. Run Server
 
@@ -185,7 +185,7 @@ Open browser: `http://localhost:8080`
 
 ---
 
-## 🚀 Production Deployment
+## Production Deployment
 
 ### Step 1: Generate JWT Secret
 
@@ -256,7 +256,7 @@ Check server output:
 2026/04/17 10:27:19 Server starting on 0.0.0.0:8080
 ```
 
-✅ No warnings = Production ready!
+No warnings = Production ready!
 
 ### Step 7: Change Admin Password
 
@@ -267,7 +267,7 @@ Check server output:
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 main_folder/
@@ -332,7 +332,7 @@ main_folder/
 
 ---
 
-## 📚 API Documentation
+## API Documentation
 
 ### Authentication Endpoints
 
@@ -427,7 +427,7 @@ For complete API documentation, see [API Documentation](../docs_and_backup/api_d
 
 ---
 
-## ⚙️ Configuration
+## Configuration
 
 ### Environment Variables
 
@@ -477,7 +477,7 @@ Look for your local IP (e.g., 192.168.1.100), then use `/24` for the whole netwo
 
 ---
 
-## 💻 Development
+## Development
 
 ### Setup Development Environment
 
@@ -537,7 +537,7 @@ Follow Go best practices:
 
 ---
 
-## 📊 Database Schema
+## Database Schema
 
 ### Users Table
 ```sql
@@ -587,7 +587,7 @@ CREATE TABLE activity_logs (
 
 ---
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -655,7 +655,7 @@ SERVER_PORT=8081
 
 ---
 
-## 📈 Performance
+## Performance
 
 ### Metrics (Production Mode)
 - **Startup Time**: ~80ms
@@ -665,15 +665,15 @@ SERVER_PORT=8081
 - **Binary Size**: 26.58 MB (optimized)
 
 ### Optimization Applied
-- ✅ Release mode by default (no debug overhead)
-- ✅ Binary stripped of debug symbols (-30% size)
-- ✅ Optimized middleware stack (5-7 handlers)
-- ✅ Efficient rate limiter (pre-allocated memory)
-- ✅ No verbose logging in production
+- Release mode by default (no debug overhead)
+- Binary stripped of debug symbols (-30% size)
+- Optimized middleware stack (5-7 handlers)
+- Efficient rate limiter (pre-allocated memory)
+- No verbose logging in production
 
 ---
 
-## 📝 License
+## License
 
 Proprietary - Internal Use Only
 
@@ -681,13 +681,13 @@ Proprietary - Internal Use Only
 
 ---
 
-## 👥 Contributors
+## Contributors
 
 - **Development Team** - Initial work and maintenance
 
 ---
 
-## 📞 Support
+## Support
 
 For issues and questions:
 - Create an issue on GitHub
@@ -695,32 +695,32 @@ For issues and questions:
 
 ---
 
-## 🔄 Changelog
+## Changelog
 
-### Version 2.6 (Current) - Production Ready ✅
-- ✅ Excel Export (All Data & Monthly)
-- ✅ Status Kehadiran (Hadir/Izin/Sakit/Cuti/Alpha)
-- ✅ Keterangan Detail (Textarea)
-- ✅ Frontend Improvements (Dropdown, Validation)
-- ✅ Binary Size Optimization (-30%)
-- ✅ Production Hardening (Security, Performance)
-- ✅ Comprehensive Documentation
+### Version 2.6 (Current) - Production Ready
+- Excel Export (All Data & Monthly)
+- Status Kehadiran (Hadir/Izin/Sakit/Cuti/Alpha)
+- Keterangan Detail (Textarea)
+- Frontend Improvements (Dropdown, Validation)
+- Binary Size Optimization (-30%)
+- Production Hardening (Security, Performance)
+- Comprehensive Documentation
 
 ### Version 2.3
-- ✅ User Management (CRUD)
-- ✅ Admin Dashboard
-- ✅ Activity Logging
-- ✅ Security Audit
+- User Management (CRUD)
+- Admin Dashboard
+- Activity Logging
+- Security Audit
 
 ### Version 1.0
-- ✅ Basic authentication
-- ✅ Clock in/out
-- ✅ Attendance history
-- ✅ IP restriction
+- Basic authentication
+- Clock in/out
+- Attendance history
+- IP restriction
 
 ---
 
-## 📚 Additional Documentation
+## Additional Documentation
 
 - [Health Check Report](../docs_and_backup/HEALTH_CHECK_AND_CLEANUP_REPORT.md)
 - [Production Ready Guide](../docs_and_backup/PRODUCTION_READY_FINAL.md)
@@ -730,4 +730,4 @@ For issues and questions:
 
 ---
 
-**Built with ❤️ using Go | Production Ready ✅ | Security Score: 9/10**
+**Built with Go | Production Ready | Security Score: 9/10**
