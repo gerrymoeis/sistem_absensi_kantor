@@ -128,15 +128,29 @@ func (rl *RateLimiter) cleanupVisitors() {
 }
 
 // LoginRateLimiter creates a stricter rate limiter for login endpoints
-// Allows 5 requests per minute per IP
-func LoginRateLimiter() gin.HandlerFunc {
-	limiter := NewRateLimiter(5, 1*time.Minute)
+// Development: 50 requests per minute
+// Production: 5 requests per minute per IP
+func LoginRateLimiter(environment string) gin.HandlerFunc {
+	var rate int
+	if environment == "development" {
+		rate = 50 // More permissive for testing
+	} else {
+		rate = 5 // Strict for production (prevent brute force)
+	}
+	limiter := NewRateLimiter(rate, 1*time.Minute)
 	return limiter.RateLimit()
 }
 
 // APIRateLimiter creates a general rate limiter for API endpoints
-// Allows 60 requests per minute per IP
-func APIRateLimiter() gin.HandlerFunc {
-	limiter := NewRateLimiter(60, 1*time.Minute)
+// Development: 1000 requests per minute (essentially unlimited for testing)
+// Production: 300 requests per minute per IP (balanced for real usage)
+func APIRateLimiter(environment string) gin.HandlerFunc {
+	var rate int
+	if environment == "development" {
+		rate = 1000 // Very permissive for testing and development
+	} else {
+		rate = 300 // Reasonable limit for production (5 req/sec sustained)
+	}
+	limiter := NewRateLimiter(rate, 1*time.Minute)
 	return limiter.RateLimit()
 }

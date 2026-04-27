@@ -8,10 +8,12 @@ import (
 )
 
 type Config struct {
-	Server   ServerConfig
-	Security SecurityConfig
-	Database DatabaseConfig
-	Logging  LoggingConfig
+	Server         ServerConfig
+	Security       SecurityConfig
+	Database       DatabaseConfig
+	Logging        LoggingConfig
+	FaceRecognition FaceRecognitionConfig
+	Environment    string // development or production
 }
 
 type ServerConfig struct {
@@ -36,6 +38,12 @@ type LoggingConfig struct {
 	File  string
 }
 
+type FaceRecognitionConfig struct {
+	Enabled        bool
+	ModelsPath     string
+	MatchThreshold float64
+}
+
 // Load loads configuration from environment variables with defaults
 func Load() (*Config, error) {
 	cfg := &Config{
@@ -57,6 +65,12 @@ func Load() (*Config, error) {
 			Level: getEnv("LOG_LEVEL", "info"),
 			File:  getEnv("LOG_FILE", "./logs/app.log"),
 		},
+		FaceRecognition: FaceRecognitionConfig{
+			Enabled:        getEnv("FACE_RECOGNITION_ENABLED", "false") == "true",
+			ModelsPath:     getEnv("FACE_MODELS_PATH", "./models"),
+			MatchThreshold: parseFloat(getEnv("FACE_MATCH_THRESHOLD", "0.6")),
+		},
+		Environment: getEnv("ENVIRONMENT", "development"), // development or production
 	}
 
 	// Validate configuration
@@ -100,4 +114,10 @@ func parseAllowedIPs(ips string) []string {
 		}
 	}
 	return result
+}
+
+func parseFloat(s string) float64 {
+	var f float64
+	fmt.Sscanf(s, "%f", &f)
+	return f
 }

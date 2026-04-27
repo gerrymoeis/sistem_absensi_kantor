@@ -56,6 +56,7 @@ func main() {
 	absensiRepo := repository.NewAbsensiRepository(db)
 	activityLogRepo := repository.NewActivityLogRepository(db)
 	adminRepo := repository.NewAdminRepository(db)
+	faceRepo := repository.NewFaceRepository(db)
 
 	// Initialize services
 	authService := service.NewAuthService(userRepo, cfg.Security.JWTSecret)
@@ -64,6 +65,26 @@ func main() {
 	adminService := service.NewAdminService(adminRepo, userRepo)
 	userService := service.NewUserService(userRepo)
 	exportService := service.NewExportService(adminRepo)
+
+	// Initialize face service (if enabled)
+	var faceService *service.FaceService
+	var faceHandler *handler.FaceHandler
+	if cfg.FaceRecognition.Enabled {
+		var err error
+		faceService, err = service.NewFaceService(cfg.FaceRecognition.ModelsPath, faceRepo, userRepo, cfg.Environment)
+		if err != nil {
+			log.Printf("Warning: Failed to initialize face service: %v", err)
+			log.Println("Face recognition will be disabled")
+		} else {
+			defer faceService.Close()
+			faceHandler = handler.NewFaceHandler(faceService, logService)
+			if cfg.Environment == "development" {
+				log.Println("Face recognition enabled (development mode - replay attack prevention disabled)")
+			} else {
+				log.Println("Face recognition enabled (production mode - replay attack prevention enabled)")
+			}
+		}
+	}
 
 	// Initialize handlers
 	authHandler := handler.NewAuthHandler(authService, logService)
@@ -100,6 +121,13 @@ func main() {
 	// Apply IP restriction middleware globally
 	router.Use(middleware.IPRestriction(cfg.Security.AllowedIPs))
 
+	// Log rate limiting configuration
+	if cfg.Environment == "development" {
+		log.Println("Rate limiting: Development mode (Login: 50/min, API: 1000/min)")
+	} else {
+		log.Println("Rate limiting: Production mode (Login: 5/min, API: 300/min)")
+	}
+
 	// Apply rate limiting only to API routes (not static files)
 	// Removed global rate limiter for better performance
 
@@ -119,13 +147,14 @@ func main() {
 	router.GET("/profile", authHandler.ProfilePage)
 	router.GET("/admin/dashboard", adminHandler.DashboardPage)
 	
-	// Login endpoint with stricter rate limiting (5 req/min per IP)
-	router.POST("/api/auth/login", middleware.LoginRateLimiter(), authHandler.Login)
+	// Login endpoint with stricter rate limiting
+	// Development: 50 req/min, Production: 5 req/min per IP
+	router.POST("/api/auth/login", middleware.LoginRateLimiter(cfg.Environment), authHandler.Login)
 
 	// Protected API routes (require authentication)
 	authorized := router.Group("/api")
 	authorized.Use(middleware.AuthRequired(cfg.Security.JWTSecret))
-	authorized.Use(middleware.APIRateLimiter()) // Rate limit authenticated routes
+	authorized.Use(middleware.APIRateLimiter(cfg.Environment)) // Rate limit authenticated routes
 	{
 		// Auth endpoints
 		authorized.POST("/auth/logout", authHandler.Logout)
@@ -138,6 +167,12 @@ func main() {
 		authorized.GET("/absensi/today", absensiHandler.GetToday)
 		authorized.GET("/absensi/history", absensiHandler.GetHistory)
 		authorized.GET("/absensi/stats", absensiHandler.GetOwnStats)
+
+		// Face recognition endpoints (if enabled)
+		if faceHandler != nil {
+			authorized.POST("/face/recognize", faceHandler.RecognizeFace)
+			authorized.GET("/face/status", faceHandler.CheckEnrollmentStatus)
+		}
 	}
 
 	// Admin routes (removed - moved to adminAPI)
@@ -152,7 +187,7 @@ func main() {
 	adminAPI := router.Group("/api/admin")
 	adminAPI.Use(middleware.AuthRequired(cfg.Security.JWTSecret))
 	adminAPI.Use(middleware.AdminRequired())
-	adminAPI.Use(middleware.APIRateLimiter()) // Rate limit admin API
+	adminAPI.Use(middleware.APIRateLimiter(cfg.Environment)) // Rate limit admin API
 	{
 		adminAPI.GET("/stats", adminHandler.GetStatistics)
 		adminAPI.GET("/absensi", adminHandler.GetAllAbsensi)
@@ -174,6 +209,13 @@ func main() {
 		// Export
 		adminAPI.GET("/export/excel", exportHandler.ExportExcel)
 		adminAPI.GET("/export/excel/monthly", exportHandler.ExportExcelByMonth)
+
+		// Face recognition management (if enabled)
+		if faceHandler != nil {
+			adminAPI.POST("/face/enroll", faceHandler.EnrollFace)
+			adminAPI.DELETE("/face/:user_id", faceHandler.DeleteUserFaceData)
+			adminAPI.GET("/face/stats", faceHandler.GetEncodingStats)
+		}
 	}
 
 	// Start server

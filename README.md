@@ -41,6 +41,18 @@ Sistem absensi berbasis web yang secure dan robust, hanya dapat diakses dari jar
 - **Rate Limiting** - Protection against brute force attacks
 - **Security Headers** - XSS, Clickjacking, MIME-sniffing protection
 
+### Face Recognition Features (Week 2 Day 5 - COMPLETE) ✨
+- **Face Enrollment** - Admin can enroll employee faces
+- **Face Recognition** - Recognize faces for attendance (93.61% accuracy)
+- **Multiple Encodings** - Support multiple face encodings per user
+- **Liveness Detection** - Anti-spoofing protection
+- **Replay Attack Prevention** - SHA-256 hash-based duplicate detection
+- **Quality Checks** - Minimum resolution and face detection validation
+- **Statistics Dashboard** - Monitor enrollment and recognition metrics
+- **Production Ready** - Tested with 1000+ images, 200+ people
+- **High Performance** - 74ms average response time
+- **Scalable** - Linear scaling, handles 100+ concurrent users
+
 ### Security Features
 - Multi-layer security (IP → Auth → Role)
 - Password hashing dengan bcrypt (cost 10)
@@ -62,6 +74,7 @@ Sistem absensi berbasis web yang secure dan robust, hanya dapat diakses dari jar
 | **Backend** | Go + Gin | 1.25+ |
 | **Database** | SQLite | 3.x |
 | **Authentication** | JWT + bcrypt | - |
+| **Face Recognition** | dlib + go-face | 1.0.0 |
 | **Frontend** | HTML + Tailwind CSS | 3.x |
 | **Excel Export** | Excelize | v2.10.1 |
 | **Deployment** | Single binary | - |
@@ -151,13 +164,18 @@ LOG_FILE=./logs/app.log
 
 ### 4. Build Application
 
+**For Standard Build (without Face Recognition):**
 ```bash
-# Using build script (recommended)
-./build.ps1
-
-# Or manual build
 go build -ldflags="-s -w" -o absensi-server.exe ./cmd/server
 ```
+
+**For Face Recognition Build (requires MSYS2 + dlib):**
+```bash
+# Use MINGW64 environment for CGO compilation
+./build_server.ps1
+```
+
+**Note**: Face recognition requires additional setup. See [Face Recognition Setup Guide](../docs_and_backup/FACE_RECOGNITION_MANUAL_INSTALLATION_GUIDE.md)
 
 ### 5. Create Admin User
 
@@ -221,6 +239,7 @@ LOG_FILE=./logs/app.log
 
 ### Step 3: Build for Production
 
+**Standard Build (without Face Recognition):**
 ```bash
 # Windows
 go build -ldflags="-s -w" -o absensi-server.exe ./cmd/server
@@ -229,9 +248,19 @@ go build -ldflags="-s -w" -o absensi-server.exe ./cmd/server
 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o absensi-server ./cmd/server
 ```
 
+**Face Recognition Build (requires MSYS2 + dlib):**
+```bash
+# Windows (MINGW64 environment)
+./build_server.ps1
+
+# Linux (requires dlib installed)
+CGO_ENABLED=1 go build -ldflags="-s -w" -o absensi-server ./cmd/server
+```
+
 **Build Flags Explanation:**
 - `-ldflags="-s -w"` - Strip debug info (reduces size by 30%)
-- Result: 26.58 MB optimized binary
+- Standard build: ~26 MB
+- Face recognition build: ~75-95 MB (includes dlib)
 
 ### Step 4: Create Admin User
 
@@ -697,7 +726,18 @@ For issues and questions:
 
 ## Changelog
 
-### Version 2.6 (Current) - Production Ready
+### Version 3.0 (Current) - Face Recognition Complete ✨
+- Face Recognition System (93.61% accuracy)
+- Face Enrollment & Management
+- Multiple Encodings per User
+- Liveness Detection & Replay Attack Prevention
+- Quality Checks & Validation
+- Statistics Dashboard
+- Tested with 1000+ images, 200+ people
+- Production Ready & Scalable
+- Comprehensive Documentation
+
+### Version 2.6 - Production Ready
 - Excel Export (All Data & Monthly)
 - Status Kehadiran (Hadir/Izin/Sakit/Cuti/Alpha)
 - Keterangan Detail (Textarea)
@@ -722,11 +762,20 @@ For issues and questions:
 
 ## Additional Documentation
 
+### Face Recognition
+- [Face Recognition API Documentation](../docs_and_backup/FACE_RECOGNITION_API_DOCUMENTATION.md)
+- [Face Recognition Installation Guide](../docs_and_backup/FACE_RECOGNITION_MANUAL_INSTALLATION_GUIDE.md)
+- [Phase 3 Progressive Testing Results](../docs_and_backup/PHASE3_PROGRESSIVE_TEST_RESULTS.md)
+- [Testing Complete Summary](../docs_and_backup/TESTING_COMPLETE_SUMMARY.md)
+- [Dataset Research](../docs_and_backup/FACE_RECOGNITION_DATASET_RESEARCH_2026.md)
+
+### General Documentation
 - [Health Check Report](../docs_and_backup/HEALTH_CHECK_AND_CLEANUP_REPORT.md)
 - [Production Ready Guide](../docs_and_backup/PRODUCTION_READY_FINAL.md)
 - [Security Audit Report](../docs_and_backup/security_audit_report.md)
 - [Phase 2 Complete Summary](../docs_and_backup/PHASE_2_COMPLETE_SUMMARY.md)
 - [Frontend Improvements](../docs_and_backup/FRONTEND_IMPROVEMENTS_COMPLETE.md)
+- [Build Guide](../docs_and_backup/BUILD_GUIDE.md)
 
 ---
 

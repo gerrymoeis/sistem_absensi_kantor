@@ -49,6 +49,30 @@ func RunMigrations(db *sql.DB) error {
 		`CREATE INDEX IF NOT EXISTS idx_activity_logs_user ON activity_logs(user_id)`,
 		`CREATE INDEX IF NOT EXISTS idx_activity_logs_action ON activity_logs(action_type)`,
 		`CREATE INDEX IF NOT EXISTS idx_activity_logs_created ON activity_logs(created_at)`,
+		// Face Recognition Tables
+		`CREATE TABLE IF NOT EXISTS face_encodings (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			user_id INTEGER NOT NULL,
+			encoding BLOB NOT NULL,
+			quality_score FLOAT DEFAULT 0.0,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_face_encodings_user ON face_encodings(user_id)`,
+		`CREATE TABLE IF NOT EXISTS face_attempts (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			user_id INTEGER,
+			matched BOOLEAN DEFAULT 0,
+			confidence FLOAT DEFAULT 0.0,
+			liveness_passed BOOLEAN DEFAULT 0,
+			image_hash VARCHAR(64),
+			ip_address VARCHAR(45),
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_face_attempts_user ON face_attempts(user_id)`,
+		`CREATE INDEX IF NOT EXISTS idx_face_attempts_created ON face_attempts(created_at)`,
+		`CREATE INDEX IF NOT EXISTS idx_face_attempts_image_hash ON face_attempts(image_hash)`,
 	}
 
 	for i, migration := range migrations {
