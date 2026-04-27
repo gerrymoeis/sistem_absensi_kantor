@@ -211,6 +211,9 @@
                     <button onclick="switchTab('logs')" id="tab-logs" class="tab-button px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
                         Activity Logs
                     </button>
+                    <button onclick="switchTab('face')" id="tab-face" class="tab-button px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                        Pendaftaran Wajah
+                    </button>
                 </nav>
             </div>
 
@@ -273,6 +276,99 @@
                         <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
                         <p class="text-gray-500 mt-2">Memuat data...</p>
                     </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Face Enrollment -->
+            <div id="content-face" class="tab-content p-6 hidden">
+                <div class="mb-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-2">Pendaftaran Wajah Karyawan</h3>
+                    <p class="text-sm text-gray-600">Daftarkan wajah karyawan untuk fitur face recognition</p>
+                </div>
+
+                <!-- User Selection -->
+                <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Pilih Karyawan:</label>
+                    <select id="face-user-select" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-base">
+                        <option value="">-- Pilih karyawan --</option>
+                    </select>
+                </div>
+
+                <!-- Enrollment Status -->
+                <div id="enrollment-status" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 hidden">
+                    <div class="flex items-start">
+                        <svg class="w-6 h-6 text-blue-600 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <div>
+                            <p class="font-semibold text-blue-900 mb-1">Status Pendaftaran</p>
+                            <p id="enrollment-status-text" class="text-blue-800 text-sm"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Photo Gallery -->
+                <div id="photo-gallery-container" class="hidden">
+                    <div class="bg-white border-2 border-gray-200 rounded-lg p-6 mb-6">
+                        <h4 class="font-semibold text-gray-800 mb-4">Foto yang Sudah Diambil (<span id="photo-count">0</span>/5):</h4>
+                        
+                        <div id="photo-gallery" class="grid grid-cols-5 gap-4 mb-4">
+                            <!-- Photos will be inserted here -->
+                        </div>
+
+                        <div class="flex gap-3">
+                            <button id="add-photo-btn" onclick="openFaceCamera()" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition flex items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                                <span>Ambil Foto Baru</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tips -->
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                        <div class="flex items-start">
+                            <svg class="w-6 h-6 text-yellow-600 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                            </svg>
+                            <div>
+                                <p class="font-semibold text-yellow-900 mb-2">Tips Pengambilan Foto:</p>
+                                <ul class="text-sm text-yellow-800 space-y-1">
+                                    <li>• Ambil 3-5 foto dengan sudut berbeda</li>
+                                    <li>• Pastikan pencahayaan baik dan merata</li>
+                                    <li>• Satu wajah per foto</li>
+                                    <li>• Wajah terlihat jelas tanpa penghalang</li>
+                                    <li>• Variasikan ekspresi (normal, senyum)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex gap-3">
+                        <button id="submit-enrollment-btn" onclick="submitEnrollment()" disabled class="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span>Simpan Semua Foto</span>
+                        </button>
+                        <button onclick="deleteAllPhotos()" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                            <span>Hapus Semua</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div id="face-empty-state" class="text-center py-12">
+                    <svg class="w-20 h-20 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                    <p class="text-gray-500 text-lg font-medium">Pilih karyawan untuk memulai pendaftaran wajah</p>
                 </div>
             </div>
         </div>
@@ -632,6 +728,7 @@
             if (tab === 'absensi') loadTodayAbsensi();
             else if (tab === 'users') loadUsers();
             else if (tab === 'logs') loadLogs();
+            else if (tab === 'face') loadFaceEnrollment();
         }
 
         function logout() {
@@ -972,6 +1069,292 @@
                 closeDeleteModal();
             }
         });
+
+        // ========================================
+        // FACE ENROLLMENT FUNCTIONALITY
+        // ========================================
+        
+        let capturedPhotos = [];
+        let selectedUserId = null;
+        let selectedUserName = '';
+
+        // Load face enrollment tab
+        async function loadFaceEnrollment() {
+            // Load users for dropdown
+            await loadUsersForFaceEnrollment();
+        }
+
+        // Load users into dropdown
+        async function loadUsersForFaceEnrollment() {
+            try {
+                const response = await fetchWithAuth('/api/admin/users');
+                const data = await response.json();
+                
+                const select = document.getElementById('face-user-select');
+                select.innerHTML = '<option value="">-- Pilih karyawan --</option>';
+                
+                if (data.data && data.data.length > 0) {
+                    data.data.forEach(user => {
+                        const option = document.createElement('option');
+                        option.value = user.id;
+                        option.textContent = `${user.full_name} (${user.username})`;
+                        option.dataset.username = user.username;
+                        option.dataset.fullname = user.full_name;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+                showToast('Gagal memuat daftar karyawan', 'error');
+            }
+        }
+
+        // Handle user selection
+        document.getElementById('face-user-select').addEventListener('change', async function() {
+            const userId = this.value;
+            
+            if (!userId) {
+                // Reset state
+                selectedUserId = null;
+                selectedUserName = '';
+                capturedPhotos = [];
+                document.getElementById('face-empty-state').classList.remove('hidden');
+                document.getElementById('photo-gallery-container').classList.add('hidden');
+                document.getElementById('enrollment-status').classList.add('hidden');
+                return;
+            }
+            
+            selectedUserId = parseInt(userId);
+            const selectedOption = this.options[this.selectedIndex];
+            selectedUserName = selectedOption.dataset.fullname;
+            
+            // Show gallery container
+            document.getElementById('face-empty-state').classList.add('hidden');
+            document.getElementById('photo-gallery-container').classList.remove('hidden');
+            
+            // Reset photos
+            capturedPhotos = [];
+            updatePhotoGallery();
+            
+            // Check enrollment status
+            await checkEnrollmentStatus(userId);
+        });
+
+        // Check enrollment status for user
+        async function checkEnrollmentStatus(userId) {
+            try {
+                const response = await fetchWithAuth(`/api/admin/face/stats`);
+                const data = await response.json();
+                
+                if (data.data) {
+                    const userStats = data.data.find(stat => stat.user_id === parseInt(userId));
+                    
+                    const statusEl = document.getElementById('enrollment-status');
+                    const statusTextEl = document.getElementById('enrollment-status-text');
+                    
+                    if (userStats && userStats.encoding_count > 0) {
+                        statusEl.classList.remove('hidden', 'bg-blue-50', 'border-blue-200');
+                        statusEl.classList.add('bg-green-50', 'border-green-200');
+                        statusTextEl.className = 'text-green-800 text-sm';
+                        statusTextEl.textContent = `Sudah terdaftar dengan ${userStats.encoding_count} foto (Terakhir: ${new Date(userStats.last_enrolled).toLocaleDateString('id-ID')})`;
+                    } else {
+                        statusEl.classList.remove('hidden', 'bg-green-50', 'border-green-200');
+                        statusEl.classList.add('bg-blue-50', 'border-blue-200');
+                        statusTextEl.className = 'text-blue-800 text-sm';
+                        statusTextEl.textContent = 'Belum terdaftar (0 foto)';
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking enrollment status:', error);
+            }
+        }
+
+        // Open camera for face capture
+        async function openFaceCamera() {
+            if (capturedPhotos.length >= 5) {
+                showToast('Maksimal 5 foto per karyawan', 'error');
+                return;
+            }
+            
+            const modal = new CameraModal({
+                title: `Ambil Foto - ${selectedUserName}`,
+                captureButtonText: 'Ambil Foto',
+                cancelButtonText: 'Batal',
+                tips: [
+                    'Pastikan wajah terlihat jelas',
+                    'Pencahayaan cukup dan merata',
+                    'Hadap kamera langsung',
+                    'Satu wajah per foto'
+                ],
+                onCapture: async (imageData) => {
+                    // Add photo to gallery
+                    capturedPhotos.push(imageData);
+                    updatePhotoGallery();
+                    showToast(`Foto ${capturedPhotos.length} berhasil diambil`, 'success');
+                },
+                onCancel: () => {
+                    // Do nothing
+                }
+            });
+            
+            await modal.show();
+        }
+
+        // Update photo gallery display
+        function updatePhotoGallery() {
+            const gallery = document.getElementById('photo-gallery');
+            const countEl = document.getElementById('photo-count');
+            const submitBtn = document.getElementById('submit-enrollment-btn');
+            const addPhotoBtn = document.getElementById('add-photo-btn');
+            
+            countEl.textContent = capturedPhotos.length;
+            
+            // Enable/disable buttons
+            submitBtn.disabled = capturedPhotos.length === 0;
+            addPhotoBtn.disabled = capturedPhotos.length >= 5;
+            
+            // Render gallery
+            gallery.innerHTML = '';
+            
+            // Add captured photos
+            capturedPhotos.forEach((photo, index) => {
+                const photoDiv = document.createElement('div');
+                photoDiv.className = 'relative group';
+                photoDiv.innerHTML = `
+                    <img src="data:image/jpeg;base64,${photo}" class="w-full h-32 object-cover rounded-lg border-2 border-gray-300" alt="Foto ${index + 1}">
+                    <button onclick="deletePhoto(${index})" class="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                    <div class="absolute bottom-1 left-1 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">
+                        Foto ${index + 1}
+                    </div>
+                `;
+                gallery.appendChild(photoDiv);
+            });
+            
+            // Add empty slots
+            for (let i = capturedPhotos.length; i < 5; i++) {
+                const emptyDiv = document.createElement('div');
+                emptyDiv.className = 'border-2 border-dashed border-gray-300 rounded-lg h-32 flex items-center justify-center bg-gray-50';
+                emptyDiv.innerHTML = `
+                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                `;
+                gallery.appendChild(emptyDiv);
+            }
+        }
+
+        // Delete single photo
+        window.deletePhoto = function(index) {
+            if (confirm('Hapus foto ini?')) {
+                capturedPhotos.splice(index, 1);
+                updatePhotoGallery();
+                showToast('Foto dihapus', 'success');
+            }
+        };
+
+        // Delete all photos
+        function deleteAllPhotos() {
+            if (capturedPhotos.length === 0) {
+                showToast('Tidak ada foto untuk dihapus', 'error');
+                return;
+            }
+            
+            if (confirm(`Hapus semua ${capturedPhotos.length} foto?`)) {
+                capturedPhotos = [];
+                updatePhotoGallery();
+                showToast('Semua foto dihapus', 'success');
+            }
+        }
+
+        // Submit enrollment
+        async function submitEnrollment() {
+            if (!selectedUserId) {
+                showToast('Pilih karyawan terlebih dahulu', 'error');
+                return;
+            }
+            
+            if (capturedPhotos.length === 0) {
+                showToast('Ambil minimal 1 foto', 'error');
+                return;
+            }
+            
+            if (capturedPhotos.length < 3) {
+                if (!confirm(`Anda hanya mengambil ${capturedPhotos.length} foto. Disarankan minimal 3 foto untuk akurasi lebih baik. Lanjutkan?`)) {
+                    return;
+                }
+            }
+            
+            const submitBtn = document.getElementById('submit-enrollment-btn');
+            const originalText = submitBtn.innerHTML;
+            
+            // Disable button and show progress
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `
+                <div class="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                <span>Menyimpan...</span>
+            `;
+            
+            let successCount = 0;
+            let failCount = 0;
+            
+            // Upload photos one by one
+            for (let i = 0; i < capturedPhotos.length; i++) {
+                try {
+                    submitBtn.innerHTML = `
+                        <div class="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                        <span>Menyimpan foto ${i + 1}/${capturedPhotos.length}...</span>
+                    `;
+                    
+                    const response = await fetchWithAuth('/api/admin/face/enroll', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            user_id: selectedUserId,
+                            image_data: capturedPhotos[i]
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        successCount++;
+                    } else {
+                        const error = await response.json();
+                        console.error(`Failed to upload photo ${i + 1}:`, error);
+                        failCount++;
+                    }
+                    
+                    // Small delay between uploads
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                    
+                } catch (error) {
+                    console.error(`Error uploading photo ${i + 1}:`, error);
+                    failCount++;
+                }
+            }
+            
+            // Reset button
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+            
+            // Show result
+            if (successCount > 0) {
+                showToast(`Berhasil menyimpan ${successCount} foto${failCount > 0 ? `, ${failCount} gagal` : ''}`, successCount === capturedPhotos.length ? 'success' : 'error');
+                
+                // Reset photos
+                capturedPhotos = [];
+                updatePhotoGallery();
+                
+                // Refresh enrollment status
+                await checkEnrollmentStatus(selectedUserId);
+            } else {
+                showToast('Gagal menyimpan semua foto', 'error');
+            }
+        }
     </script>
+
+    <!-- Load Webcam Module -->
+    <script src="/static/js/webcam.js"></script>
 </body>
 </html>

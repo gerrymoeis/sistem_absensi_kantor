@@ -150,6 +150,9 @@ func main() {
 	// Login endpoint with stricter rate limiting
 	// Development: 50 req/min, Production: 5 req/min per IP
 	router.POST("/api/auth/login", middleware.LoginRateLimiter(cfg.Environment), authHandler.Login)
+	
+	// Face login endpoint (no rate limiting needed as face recognition already has rate limiting)
+	router.POST("/api/auth/login-face", authHandler.LoginWithFace)
 
 	// Protected API routes (require authentication)
 	authorized := router.Group("/api")

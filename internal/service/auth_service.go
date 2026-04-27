@@ -158,3 +158,20 @@ func HashPassword(password string) (string, error) {
 	}
 	return string(hash), nil
 }
+
+// LoginWithFace authenticates user via face recognition and returns JWT token
+func (s *AuthService) LoginWithFace(user *model.User) (*model.LoginResponse, error) {
+	// User is already validated by face recognition
+	// Just generate token and return response
+	
+	// Generate JWT token
+	token, err := s.generateToken(user)
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate token: %w", err)
+	}
+
+	return &model.LoginResponse{
+		Token: token,
+		User:  *user,
+	}, nil
+}

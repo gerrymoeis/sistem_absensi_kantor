@@ -17,6 +17,26 @@
             <h1 class="text-3xl font-bold text-gray-800">Sistem Absensi</h1>
             <p class="text-gray-600 mt-2">Silakan login untuk melanjutkan</p>
         </div>
+
+        <!-- Tab Switcher -->
+        <div class="flex mb-6 bg-gray-100 rounded-lg p-1">
+            <button onclick="switchLoginTab('password')" id="tab-password" class="flex-1 py-2 px-4 rounded-md font-semibold transition bg-white text-blue-600 shadow-sm">
+                <div class="flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                    <span>Password</span>
+                </div>
+            </button>
+            <button onclick="switchLoginTab('face')" id="tab-face" class="flex-1 py-2 px-4 rounded-md font-semibold transition text-gray-600 hover:text-gray-800">
+                <div class="flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span>Wajah</span>
+                </div>
+            </button>
+        </div>
         
         <div id="error-message" class="hidden bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded mb-4 animate-shake">
             <div class="flex items-center">
@@ -26,7 +46,8 @@
                 <span id="error-text"></span>
             </div>
         </div>
-        
+
+        <!-- Password Login Form -->
         <form id="login-form" class="space-y-6">
             <div>
                 <label class="block text-gray-700 text-sm font-semibold mb-2" for="username">
@@ -34,7 +55,7 @@
                 </label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="h-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                         </svg>
                     </div>
@@ -82,6 +103,41 @@
                 </svg>
             </button>
         </form>
+
+        <!-- Face Login -->
+        <div id="face-login" class="hidden space-y-6">
+            <div class="text-center py-8">
+                <div class="inline-block p-4 bg-blue-100 rounded-full mb-4">
+                    <svg class="w-16 h-16 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Login dengan Face Recognition</h3>
+                <p class="text-gray-600 text-sm mb-6">Klik tombol di bawah untuk membuka kamera dan login dengan wajah Anda</p>
+                
+                <button 
+                    id="face-login-btn"
+                    onclick="startFaceLogin()"
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center gap-2"
+                >
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    <span>Buka Kamera</span>
+                </button>
+
+                <div class="mt-6 pt-6 border-t border-gray-200">
+                    <p class="text-sm text-gray-600 mb-2">Atau gunakan metode lain:</p>
+                    <button 
+                        onclick="switchLoginTab('password')"
+                        class="text-blue-600 hover:text-blue-700 font-semibold text-sm"
+                    >
+                        Login dengan Password →
+                    </button>
+                </div>
+            </div>
+        </div>
         
         <div class="mt-6 p-4 bg-blue-50 rounded-lg">
             <p class="text-sm text-gray-600 text-center font-medium mb-1">Demo Credentials:</p>
@@ -175,6 +231,179 @@
         document.getElementById('password').addEventListener('input', () => {
             errorDiv.classList.add('hidden');
         });
+
+        // ========================================
+        // TAB SWITCHER
+        // ========================================
+        
+        function switchLoginTab(tab) {
+            const passwordTab = document.getElementById('tab-password');
+            const faceTab = document.getElementById('tab-face');
+            const loginForm = document.getElementById('login-form');
+            const faceLogin = document.getElementById('face-login');
+            const errorDiv = document.getElementById('error-message');
+            
+            // Hide error
+            errorDiv.classList.add('hidden');
+            
+            if (tab === 'password') {
+                // Show password form
+                passwordTab.classList.add('bg-white', 'text-blue-600', 'shadow-sm');
+                passwordTab.classList.remove('text-gray-600');
+                faceTab.classList.remove('bg-white', 'text-blue-600', 'shadow-sm');
+                faceTab.classList.add('text-gray-600');
+                
+                loginForm.classList.remove('hidden');
+                faceLogin.classList.add('hidden');
+            } else {
+                // Show face login
+                faceTab.classList.add('bg-white', 'text-blue-600', 'shadow-sm');
+                faceTab.classList.remove('text-gray-600');
+                passwordTab.classList.remove('bg-white', 'text-blue-600', 'shadow-sm');
+                passwordTab.classList.add('text-gray-600');
+                
+                loginForm.classList.add('hidden');
+                faceLogin.classList.remove('hidden');
+            }
+        }
+
+        // ========================================
+        // FACE LOGIN
+        // ========================================
+        
+        async function startFaceLogin() {
+            const faceLoginBtn = document.getElementById('face-login-btn');
+            const originalHTML = faceLoginBtn.innerHTML;
+            
+            // Disable button
+            faceLoginBtn.disabled = true;
+            faceLoginBtn.innerHTML = `
+                <div class="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                <span>Membuka kamera...</span>
+            `;
+            
+            try {
+                const modal = new CameraModal({
+                    title: 'Login dengan Wajah',
+                    captureButtonText: 'Login',
+                    cancelButtonText: 'Batal',
+                    tips: [
+                        'Pastikan wajah terlihat jelas',
+                        'Pencahayaan cukup',
+                        'Hadap kamera langsung'
+                    ],
+                    onCapture: async (imageData) => {
+                        // Show processing
+                        faceLoginBtn.innerHTML = `
+                            <div class="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                            <span>Mengenali wajah...</span>
+                        `;
+                        
+                        try {
+                            // Call recognition API
+                            const response = await fetch('/api/face/recognize', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    image_data: imageData,
+                                    liveness_passed: true
+                                })
+                            });
+                            
+                            const data = await response.json();
+                            
+                            if (response.ok && data.matched) {
+                                // Face recognized - get user data and login
+                                showError(`Wajah dikenali: ${data.full_name}. Logging in...`);
+                                errorDiv.classList.remove('bg-red-50', 'border-red-500', 'text-red-700');
+                                errorDiv.classList.add('bg-green-50', 'border-green-500', 'text-green-700');
+                                errorDiv.classList.remove('hidden');
+                                
+                                // Login with recognized user
+                                await loginWithFaceRecognition(data.user_id, data.full_name);
+                            } else {
+                                // Face not recognized
+                                showError(data.message || 'Wajah tidak dikenali. Silakan coba lagi atau gunakan password.');
+                                faceLoginBtn.disabled = false;
+                                faceLoginBtn.innerHTML = originalHTML;
+                            }
+                        } catch (error) {
+                            console.error('Face recognition error:', error);
+                            showError('Terjadi kesalahan saat mengenali wajah. Silakan coba lagi.');
+                            faceLoginBtn.disabled = false;
+                            faceLoginBtn.innerHTML = originalHTML;
+                        }
+                    },
+                    onCancel: () => {
+                        faceLoginBtn.disabled = false;
+                        faceLoginBtn.innerHTML = originalHTML;
+                    }
+                });
+                
+                await modal.show();
+                
+                // Reset button after modal opens
+                faceLoginBtn.disabled = false;
+                faceLoginBtn.innerHTML = originalHTML;
+                
+            } catch (error) {
+                console.error('Camera error:', error);
+                showError('Gagal membuka kamera. Pastikan browser memiliki akses ke kamera.');
+                faceLoginBtn.disabled = false;
+                faceLoginBtn.innerHTML = originalHTML;
+            }
+        }
+
+        async function loginWithFaceRecognition(userId, fullName) {
+            try {
+                // Get user credentials by user ID (admin endpoint)
+                // Since we don't have direct login-by-id endpoint, we need to use a workaround
+                // For now, we'll create a temporary token or use the recognition result
+                
+                // Alternative: Call a special endpoint that creates session from face recognition
+                const response = await fetch('/api/auth/login-face', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_id: userId
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    
+                    // Redirect based on role
+                    setTimeout(() => {
+                        if (data.user.role === 'admin') {
+                            window.location.href = '/admin/dashboard';
+                        } else {
+                            window.location.href = '/dashboard';
+                        }
+                    }, 1000);
+                } else {
+                    // Fallback: If no special endpoint, show message to use password
+                    showError(`Wajah dikenali sebagai ${fullName}, tetapi perlu login dengan password untuk keamanan.`);
+                    switchLoginTab('password');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showError('Terjadi kesalahan saat login. Silakan gunakan password.');
+                switchLoginTab('password');
+            }
+        }
+
+        // Make functions global
+        window.switchLoginTab = switchLoginTab;
+        window.startFaceLogin = startFaceLogin;
     </script>
+
+    <!-- Load Webcam Module -->
+    <script src="/static/js/webcam.js"></script>
 </body>
 </html>

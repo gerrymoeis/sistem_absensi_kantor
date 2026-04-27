@@ -162,3 +162,69 @@ func (h *AuthHandler) ChangePassword(c *gin.Context) {
 		"message": "Password changed successfully",
 	})
 }
+
+// LoginWithFace handles face recognition login
+func (h *AuthHandler) LoginWithFace(c *gin.Context) {
+	var req struct {
+		UserID int64 `json:"user_id" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid request format",
+		})
+		return
+	}
+
+	// Get client info for logging
+	ipAddress := c.ClientIP()
+	userAgent := c.GetHeader("User-Agent")
+
+	// Get user by ID
+	user, err := h.authService.GetUserByID(req.UserID)
+	if err != nil {
+		// Log failed attempt
+		h.logService.LogFailed(nil, model.ActionLogin,
+			fmt.Sprintf("Failed face login attempt for user ID: %d (user not found)", req.UserID),
+			ipAddress, userAgent)
+
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "User not found",
+		})
+		return
+	}
+
+	// Check if user is active
+	if !user.IsActive {
+		// Log failed attempt
+		h.logService.LogFailed(&user.ID, model.ActionLogin,
+			fmt.Sprintf("Failed face login attempt for user %s (account inactive)", user.Username),
+			ipAddress, userAgent)
+
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "User account is inactive",
+		})
+		return
+	}
+
+	// Generate login response (same as regular login)
+	response, err := h.authService.LoginWithFace(user)
+	if err != nil {
+		// Log failed attempt
+		h.logService.LogFailed(&user.ID, model.ActionLogin,
+			fmt.Sprintf("Failed to generate token for face login: %s", err.Error()),
+			ipAddress, userAgent)
+
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to generate authentication token",
+		})
+		return
+	}
+
+	// Log successful face login
+	h.logService.LogSuccess(user.ID, model.ActionFaceLogin,
+		fmt.Sprintf("User %s logged in successfully with face recognition", user.Username),
+		ipAddress, userAgent)
+
+	c.JSON(http.StatusOK, response)
+}

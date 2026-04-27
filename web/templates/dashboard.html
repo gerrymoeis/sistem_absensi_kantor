@@ -132,7 +132,7 @@
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                     <button 
                         id="btn-masuk" 
                         onclick="clockIn()"
@@ -158,6 +158,31 @@
                         </div>
                     </button>
                 </div>
+
+                <!-- Separator -->
+                <div class="relative mb-6">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-4 bg-white text-gray-500 font-medium">ATAU</span>
+                    </div>
+                </div>
+
+                <!-- Face Recognition Button -->
+                <button 
+                    id="btn-face-attendance" 
+                    onclick="faceAttendance()"
+                    class="w-full group bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-bold py-4 px-6 rounded-xl text-lg shadow-lg hover:shadow-xl transition duration-200 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                >
+                    <div class="flex items-center justify-center space-x-3">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span>Absen dengan Wajah</span>
+                    </div>
+                </button>
+                <p class="text-xs text-gray-500 text-center mt-2">Gunakan face recognition untuk absen masuk secara otomatis</p>
             </div>
 
             <!-- Quick Link -->
@@ -384,6 +409,126 @@
                 keteranganField.classList.add('border-red-300');
             }
         });
+
+        // ========================================
+        // FACE ATTENDANCE FUNCTIONALITY
+        // ========================================
+        
+        async function faceAttendance() {
+            const btn = document.getElementById('btn-face-attendance');
+            const originalHTML = btn.innerHTML;
+            
+            // Disable button
+            btn.disabled = true;
+            btn.innerHTML = `
+                <div class="flex items-center justify-center space-x-2">
+                    <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    <span>Membuka kamera...</span>
+                </div>
+            `;
+            
+            try {
+                const modal = new CameraModal({
+                    title: 'Absen dengan Wajah',
+                    captureButtonText: 'Absen',
+                    cancelButtonText: 'Batal',
+                    tips: [
+                        'Pastikan wajah terlihat jelas',
+                        'Pencahayaan cukup',
+                        'Hadap kamera langsung'
+                    ],
+                    onCapture: async (imageData) => {
+                        // Show processing
+                        btn.innerHTML = `
+                            <div class="flex items-center justify-center space-x-2">
+                                <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                <span>Mengenali wajah...</span>
+                            </div>
+                        `;
+                        
+                        try {
+                            // Call recognition API
+                            const response = await fetchWithAuth('/api/face/recognize', {
+                                method: 'POST',
+                                body: JSON.stringify({
+                                    image_data: imageData,
+                                    liveness_passed: true
+                                })
+                            });
+                            
+                            const data = await response.json();
+                            
+                            if (response.ok && data.matched) {
+                                // Face recognized - auto clock in
+                                showToast(`Wajah dikenali: ${data.full_name}. Memproses absensi...`, 'success');
+                                
+                                // Show processing
+                                btn.innerHTML = `
+                                    <div class="flex items-center justify-center space-x-2">
+                                        <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                        <span>Memproses absensi...</span>
+                                    </div>
+                                `;
+                                
+                                // Auto clock in with status "hadir"
+                                const clockInResponse = await fetchWithAuth('/api/absensi/masuk', {
+                                    method: 'POST',
+                                    body: JSON.stringify({ 
+                                        status: 'hadir',
+                                        keterangan: `Absen dengan face recognition (Confidence: ${(data.confidence * 100).toFixed(1)}%)`
+                                    })
+                                });
+                                
+                                const clockInData = await clockInResponse.json();
+                                
+                                if (clockInResponse.ok) {
+                                    showToast(`${clockInData.message} - ${data.full_name}`, 'success');
+                                    await loadTodayStatus();
+                                    
+                                    // Reset form
+                                    document.getElementById('status').value = 'hadir';
+                                    document.getElementById('keterangan').value = '';
+                                } else {
+                                    showToast(clockInData.error || 'Gagal melakukan absensi', 'error');
+                                }
+                            } else {
+                                // Face not recognized
+                                showToast(data.message || 'Wajah tidak dikenali. Silakan coba lagi atau gunakan absen manual.', 'error');
+                            }
+                        } catch (error) {
+                            console.error('Face attendance error:', error);
+                            showToast('Terjadi kesalahan saat memproses absensi. Silakan coba lagi.', 'error');
+                        } finally {
+                            // Reset button
+                            btn.disabled = false;
+                            btn.innerHTML = originalHTML;
+                        }
+                    },
+                    onCancel: () => {
+                        btn.disabled = false;
+                        btn.innerHTML = originalHTML;
+                    }
+                });
+                
+                await modal.show();
+                
+                // Reset button after modal opens
+                btn.disabled = false;
+                btn.innerHTML = originalHTML;
+                
+            } catch (error) {
+                console.error('Camera error:', error);
+                showToast('Gagal membuka kamera. Pastikan browser memiliki akses ke kamera.', 'error');
+                btn.disabled = false;
+                btn.innerHTML = originalHTML;
+            }
+        }
+
+        // Make function global
+        window.faceAttendance = faceAttendance;
     </script>
+
+    <!-- Load Webcam Module -->
+    <script src="/static/js/webcam.js"></script>
 </body>
 </html>

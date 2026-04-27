@@ -15,16 +15,18 @@ type ActivityLog struct {
 
 // Action types constants
 const (
-	ActionLogin       = "login"
-	ActionLogout      = "logout"
-	ActionClockIn     = "clock_in"
-	ActionClockOut    = "clock_out"
-	ActionViewData    = "view_data"
-	ActionExport      = "export"
-	ActionUpdate      = "update"
-	ActionAdminCreate = "admin_create"
-	ActionAdminUpdate = "admin_update"
-	ActionAdminDelete = "admin_delete"
+	ActionLogin          = "login"
+	ActionFaceLogin      = "face_login"
+	ActionLogout         = "logout"
+	ActionClockIn        = "clock_in"
+	ActionClockOut       = "clock_out"
+	ActionViewData       = "view_data"
+	ActionExport         = "export"
+	ActionUpdate         = "update"
+	ActionAdminCreate    = "admin_create"
+	ActionAdminUpdate    = "admin_update"
+	ActionAdminDelete    = "admin_delete"
+	ActionFaceRecognition = "face_recognition"
 )
 
 // Status constants
