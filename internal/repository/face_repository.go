@@ -109,13 +109,11 @@ func (r *FaceRepository) DeleteUserEncodings(userID int64) error {
 		return fmt.Errorf("failed to delete encodings: %w", err)
 	}
 
-	rowsAffected, err := result.RowsAffected()
+	// Note: It's OK if no rows are affected (user has no encodings yet)
+	// This is not an error condition
+	_, err = result.RowsAffected()
 	if err != nil {
 		return fmt.Errorf("failed to get rows affected: %w", err)
-	}
-
-	if rowsAffected == 0 {
-		return fmt.Errorf("no encodings found for user %d", userID)
 	}
 
 	return nil

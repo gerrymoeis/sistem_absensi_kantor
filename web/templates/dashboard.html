@@ -39,6 +39,13 @@
                         </svg>
                         <span id="user-name" class="font-medium"></span>
                     </div>
+                    <!-- Admin Dashboard Link (only visible for admin role) -->
+                    <a href="/admin" id="admin-dashboard-link" class="hidden bg-purple-500 hover:bg-purple-600 px-4 py-2 rounded-lg transition flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                        </svg>
+                        <span>Admin Dashboard</span>
+                    </a>
                     <a href="/history" class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-lg transition">
                         Riwayat
                     </a>
@@ -72,6 +79,11 @@
                 </div>
             </div>
 
+            <!-- Enrollment Status Card -->
+            <div id="enrollment-status-card" class="mb-6">
+                <!-- Will be populated by JavaScript -->
+            </div>
+
             <!-- Status Card -->
             <div class="bg-white rounded-xl shadow-md p-6 mb-6">
                 <div class="flex items-center justify-between mb-4">
@@ -88,101 +100,58 @@
                 </div>
             </div>
 
-            <!-- Absensi Form Card -->
+            <!-- Face Recognition Attendance Card -->
             <div class="bg-white rounded-xl shadow-md p-6 mb-6">
-                <h2 class="text-xl font-bold text-gray-800 mb-4">Form Absensi</h2>
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Absensi dengan Face Recognition</h2>
                 
-                <!-- Status Dropdown -->
-                <div class="mb-4">
-                    <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">
-                        Status Kehadiran
-                    </label>
-                    <div class="relative">
-                        <select 
-                            id="status" 
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition appearance-none bg-white"
-                        >
-                            <option value="hadir">Hadir</option>
-                            <option value="izin">Izin</option>
-                            <option value="sakit">Sakit</option>
-                            <option value="cuti">Cuti</option>
-                            <option value="alpha">Alpha</option>
-                        </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </div>
-                    </div>
-                    <p class="text-xs text-gray-500 mt-1">Pilih status kehadiran Anda hari ini</p>
-                </div>
-
-                <!-- Keterangan Textarea -->
-                <div class="mb-6">
-                    <label for="keterangan" class="block text-sm font-semibold text-gray-700 mb-2">
-                        Keterangan
-                    </label>
-                    <textarea 
-                        id="keterangan" 
-                        rows="4" 
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
-                        placeholder="Masukkan keterangan atau alasan (opsional untuk Hadir, wajib untuk Izin/Sakit/Cuti/Alpha)..."
-                    ></textarea>
-                    <p class="text-xs text-gray-500 mt-1">Berikan penjelasan detail jika Anda izin, sakit, cuti, atau alpha</p>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                    <button 
-                        id="btn-masuk" 
-                        onclick="clockIn()"
-                        class="group bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-4 px-6 rounded-xl text-lg shadow-lg hover:shadow-xl transition duration-200 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                    >
-                        <div class="flex items-center justify-center space-x-3">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
-                            </svg>
-                            <span>Absen Masuk</span>
-                        </div>
-                    </button>
-                    <button 
-                        id="btn-pulang" 
-                        onclick="clockOut()"
-                        class="group bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold py-4 px-6 rounded-xl text-lg shadow-lg hover:shadow-xl transition duration-200 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                    >
-                        <div class="flex items-center justify-center space-x-3">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-                            </svg>
-                            <span>Absen Pulang</span>
-                        </div>
-                    </button>
-                </div>
-
-                <!-- Separator -->
-                <div class="relative mb-6">
-                    <div class="absolute inset-0 flex items-center">
-                        <div class="w-full border-t border-gray-300"></div>
-                    </div>
-                    <div class="relative flex justify-center text-sm">
-                        <span class="px-4 bg-white text-gray-500 font-medium">ATAU</span>
-                    </div>
-                </div>
+                <p class="text-gray-600 mb-6">
+                    Gunakan face recognition untuk melakukan absensi masuk. Sistem akan otomatis mengenali wajah Anda dan mencatat kehadiran.
+                </p>
 
                 <!-- Face Recognition Button -->
                 <button 
                     id="btn-face-attendance" 
                     onclick="faceAttendance()"
-                    class="w-full group bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-bold py-4 px-6 rounded-xl text-lg shadow-lg hover:shadow-xl transition duration-200 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                    class="w-full group bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold py-5 px-6 rounded-xl text-lg shadow-lg hover:shadow-xl transition duration-200 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                >
+                    <div class="flex items-center justify-center space-x-3">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span>Absen Masuk dengan Wajah</span>
+                    </div>
+                </button>
+                
+                <div class="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p class="text-sm text-blue-800 font-semibold mb-2">💡 Tips:</p>
+                    <ul class="text-sm text-blue-700 space-y-1">
+                        <li>• Pastikan wajah terlihat jelas</li>
+                        <li>• Pencahayaan cukup terang</li>
+                        <li>• Hadap kamera langsung</li>
+                        <li>• Sistem akan otomatis mencatat kehadiran Anda</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Leave Request Card -->
+            <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Ajukan Izin/Sakit/Cuti</h2>
+                
+                <p class="text-gray-600 mb-4">
+                    Jika Anda tidak dapat hadir, ajukan permohonan izin/sakit/cuti. Admin akan meninjau dan menyetujui permohonan Anda.
+                </p>
+
+                <button 
+                    onclick="showLeaveRequestForm()"
+                    class="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white font-bold py-4 px-6 rounded-xl text-lg shadow-lg hover:shadow-xl transition duration-200 transform hover:-translate-y-1"
                 >
                     <div class="flex items-center justify-center space-x-3">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
-                        <span>Absen dengan Wajah</span>
+                        <span>Ajukan Permohonan</span>
                     </div>
                 </button>
-                <p class="text-xs text-gray-500 text-center mt-2">Gunakan face recognition untuk absen masuk secara otomatis</p>
             </div>
 
             <!-- Quick Link -->
@@ -206,6 +175,14 @@
         }
 
         document.getElementById('user-name').textContent = user.full_name || user.username;
+
+        // Show Admin Dashboard link only for admin role
+        if (user.role === 'admin') {
+            const adminLink = document.getElementById('admin-dashboard-link');
+            if (adminLink) {
+                adminLink.classList.remove('hidden');
+            }
+        }
 
         // Set current date
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -295,7 +272,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                             </svg>
                             <p class="text-gray-500 text-lg">Belum absen hari ini</p>
-                            <p class="text-gray-400 text-sm mt-1">Silakan klik tombol "Absen Masuk" untuk memulai</p>
+                            <p class="text-gray-400 text-sm mt-1">Gunakan face recognition untuk absen masuk</p>
                         </div>
                     `;
                 }
@@ -305,81 +282,199 @@
             }
         }
 
-        async function clockIn() {
-            const btn = document.getElementById('btn-masuk');
-            const status = document.getElementById('status').value;
-            const keterangan = document.getElementById('keterangan').value.trim();
-            
-            // Validation: keterangan wajib untuk non-hadir
-            if (status !== 'hadir' && !keterangan) {
-                showToast(`Keterangan wajib diisi untuk status "${status.toUpperCase()}"`, 'error');
-                document.getElementById('keterangan').focus();
-                return;
-            }
-            
-            btn.disabled = true;
-            btn.innerHTML = '<div class="flex items-center justify-center space-x-2"><div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div><span>Memproses...</span></div>';
-            
-            try {
-                const response = await fetchWithAuth('/api/absensi/masuk', {
-                    method: 'POST',
-                    body: JSON.stringify({ 
-                        status: status,
-                        keterangan: keterangan || null
-                    }),
-                });
-                
-                const data = await response.json();
-                
-                if (response.ok) {
-                    showToast(data.message, 'success');
-                    await loadTodayStatus();
-                    // Reset form
-                    document.getElementById('status').value = 'hadir';
-                    document.getElementById('keterangan').value = '';
-                } else {
-                    showToast(data.error, 'error');
-                }
-            } catch (error) {
-                showToast('Terjadi kesalahan. Silakan coba lagi.', 'error');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = '<div class="flex items-center justify-center space-x-3"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg><span>Absen Masuk</span></div>';
-            }
-        }
+        // ========================================
+        // LEAVE REQUEST FUNCTIONALITY
+        // ========================================
+        
+        function showLeaveRequestForm() {
+            // Create modal for leave request
+            const modalHTML = `
+                <div id="leave-request-modal" class="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
+                    <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                        <!-- Header -->
+                        <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center z-10">
+                            <h2 class="text-2xl font-bold text-gray-800">📝 Ajukan Permohonan Izin</h2>
+                            <button onclick="closeLeaveRequestForm()" class="text-gray-500 hover:text-gray-700 transition">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <!-- Content -->
+                        <div class="p-6">
+                            <form id="leave-request-form" onsubmit="submitLeaveRequest(event)">
+                                <!-- Leave Type -->
+                                <div class="mb-4">
+                                    <label for="leave-type" class="block text-sm font-semibold text-gray-700 mb-2">
+                                        Jenis Permohonan <span class="text-red-500">*</span>
+                                    </label>
+                                    <select 
+                                        id="leave-type" 
+                                        required
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                    >
+                                        <option value="">Pilih jenis permohonan</option>
+                                        <option value="izin">Izin</option>
+                                        <option value="sakit">Sakit</option>
+                                        <option value="cuti">Cuti</option>
+                                    </select>
+                                </div>
 
-        async function clockOut() {
-            const btn = document.getElementById('btn-pulang');
-            const keterangan = document.getElementById('keterangan').value.trim();
+                                <!-- Leave Date -->
+                                <div class="mb-4">
+                                    <label for="leave-date" class="block text-sm font-semibold text-gray-700 mb-2">
+                                        Tanggal <span class="text-red-500">*</span>
+                                    </label>
+                                    <input 
+                                        type="date" 
+                                        id="leave-date" 
+                                        required
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                    />
+                                </div>
+
+                                <!-- Reason -->
+                                <div class="mb-4">
+                                    <label for="leave-reason" class="block text-sm font-semibold text-gray-700 mb-2">
+                                        Alasan/Penjelasan <span class="text-red-500">*</span>
+                                    </label>
+                                    <textarea 
+                                        id="leave-reason" 
+                                        rows="4" 
+                                        required
+                                        minlength="10"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
+                                        placeholder="Jelaskan alasan permohonan Anda (minimal 10 karakter)..."
+                                    ></textarea>
+                                    <p class="text-xs text-gray-500 mt-1">Berikan penjelasan yang jelas dan detail</p>
+                                </div>
+
+                                <!-- Proof File (REQUIRED) -->
+                                <div class="mb-6">
+                                    <label for="leave-proof" class="block text-sm font-semibold text-gray-700 mb-2">
+                                        Bukti Pendukung <span class="text-red-500">*</span>
+                                    </label>
+                                    <input 
+                                        type="file" 
+                                        id="leave-proof" 
+                                        accept="image/*,.pdf"
+                                        required
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                    />
+                                    <p class="text-xs text-gray-500 mt-1">Upload surat keterangan dokter, undangan, atau bukti lainnya (maks 5MB) - WAJIB</p>
+                                </div>
+
+                                <!-- Buttons -->
+                                <div class="flex gap-3">
+                                    <button 
+                                        type="submit"
+                                        id="submit-leave-btn"
+                                        class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition"
+                                    >
+                                        Kirim Permohonan
+                                    </button>
+                                    <button 
+                                        type="button"
+                                        onclick="closeLeaveRequestForm()"
+                                        class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition"
+                                    >
+                                        Batal
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            
+            // Set min date to today
+            document.getElementById('leave-date').min = new Date().toISOString().split('T')[0];
+        }
+        
+        function closeLeaveRequestForm() {
+            const modal = document.getElementById('leave-request-modal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+        
+        async function submitLeaveRequest(event) {
+            event.preventDefault();
+            
+            const btn = document.getElementById('submit-leave-btn');
+            const originalHTML = btn.innerHTML;
             
             btn.disabled = true;
-            btn.innerHTML = '<div class="flex items-center justify-center space-x-2"><div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div><span>Memproses...</span></div>';
+            btn.innerHTML = '<div class="flex items-center justify-center space-x-2"><div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div><span>Mengirim...</span></div>';
             
             try {
-                const response = await fetchWithAuth('/api/absensi/pulang', {
+                const leaveType = document.getElementById('leave-type').value;
+                const leaveDate = document.getElementById('leave-date').value;
+                const reason = document.getElementById('leave-reason').value;
+                const proofFile = document.getElementById('leave-proof').files[0];
+                
+                // Validate proof file is provided (REQUIRED)
+                if (!proofFile) {
+                    showToast('Bukti pendukung wajib dilampirkan', 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = originalHTML;
+                    return;
+                }
+                
+                // Validate file size
+                if (proofFile.size > 5 * 1024 * 1024) {
+                    showToast('Ukuran file terlalu besar (maksimal 5MB)', 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = originalHTML;
+                    return;
+                }
+                
+                // Convert file to base64
+                const proofData = await fileToBase64(proofFile);
+                
+                const response = await fetchWithAuth('/api/leave-requests', {
                     method: 'POST',
-                    body: JSON.stringify({ 
-                        keterangan: keterangan || null
-                    }),
+                    body: JSON.stringify({
+                        leave_type: leaveType,
+                        leave_date: leaveDate,
+                        reason: reason,
+                        proof_file: proofData
+                    })
                 });
                 
                 const data = await response.json();
                 
                 if (response.ok) {
-                    showToast(data.message, 'success');
-                    await loadTodayStatus();
-                    // Reset form
-                    document.getElementById('keterangan').value = '';
+                    showToast(data.message || 'Permohonan berhasil diajukan. Menunggu persetujuan admin.', 'success');
+                    closeLeaveRequestForm();
                 } else {
-                    showToast(data.error, 'error');
+                    showToast(data.error || 'Gagal mengajukan permohonan', 'error');
                 }
             } catch (error) {
+                console.error('Leave request error:', error);
                 showToast('Terjadi kesalahan. Silakan coba lagi.', 'error');
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<div class="flex items-center justify-center space-x-3"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg><span>Absen Pulang</span></div>';
+                btn.innerHTML = originalHTML;
             }
         }
+        
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+        
+        // Make functions global
+        window.showLeaveRequestForm = showLeaveRequestForm;
+        window.closeLeaveRequestForm = closeLeaveRequestForm;
+        window.submitLeaveRequest = submitLeaveRequest;
 
         function logout() {
             if (confirm('Apakah Anda yakin ingin logout?')) {
@@ -391,24 +486,6 @@
 
         // Load status on page load
         loadTodayStatus();
-
-        // Dynamic status change handler
-        document.getElementById('status').addEventListener('change', function() {
-            const keteranganField = document.getElementById('keterangan');
-            const keteranganLabel = keteranganField.previousElementSibling.previousElementSibling;
-            const keteranganHint = keteranganField.nextElementSibling;
-            
-            if (this.value === 'hadir') {
-                keteranganField.placeholder = 'Masukkan keterangan (opsional)...';
-                keteranganHint.textContent = 'Keterangan bersifat opsional untuk status Hadir';
-                keteranganField.classList.remove('border-red-300', 'ring-2', 'ring-red-200');
-            } else {
-                keteranganField.placeholder = `Masukkan alasan ${this.value} (wajib diisi)...`;
-                keteranganHint.textContent = `Keterangan WAJIB diisi untuk status ${this.value.toUpperCase()}`;
-                keteranganHint.classList.add('text-red-600', 'font-semibold');
-                keteranganField.classList.add('border-red-300');
-            }
-        });
 
         // ========================================
         // FACE ATTENDANCE FUNCTIONALITY
@@ -482,12 +559,8 @@
                                 const clockInData = await clockInResponse.json();
                                 
                                 if (clockInResponse.ok) {
-                                    showToast(`${clockInData.message} - ${data.full_name}`, 'success');
+                                    showToast(`Absensi berhasil! Selamat bekerja, ${data.full_name}`, 'success');
                                     await loadTodayStatus();
-                                    
-                                    // Reset form
-                                    document.getElementById('status').value = 'hadir';
-                                    document.getElementById('keterangan').value = '';
                                 } else {
                                     showToast(clockInData.error || 'Gagal melakukan absensi', 'error');
                                 }
@@ -526,7 +599,133 @@
 
         // Make function global
         window.faceAttendance = faceAttendance;
+
+        // ========================================
+        // ENROLLMENT FUNCTIONALITY
+        // ========================================
+        
+        let enrollmentStatus = { enrolled: false, encoding_count: 0 };
+        
+        async function checkEnrollmentStatus() {
+            try {
+                const response = await fetchWithAuth('/api/face/status');
+                const data = await response.json();
+                
+                enrollmentStatus = data;
+                renderEnrollmentStatus();
+            } catch (error) {
+                console.error('Error checking enrollment status:', error);
+            }
+        }
+        
+        function renderEnrollmentStatus() {
+            const card = document.getElementById('enrollment-status-card');
+            
+            if (enrollmentStatus.enrolled) {
+                // Enrolled - show success badge
+                card.innerHTML = `
+                    <div class="bg-green-50 border-2 border-green-300 rounded-xl p-4">
+                        <div class="flex items-center gap-3">
+                            <svg class="w-8 h-8 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <div class="flex-1">
+                                <p class="font-bold text-green-900">Wajah Terdaftar</p>
+                                <p class="text-sm text-green-700">Anda dapat menggunakan face recognition untuk absen (${enrollmentStatus.encoding_count} encoding)</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Not enrolled - show enrollment prompt
+                card.innerHTML = `
+                    <div class="bg-yellow-50 border-2 border-yellow-300 rounded-xl p-4">
+                        <div class="flex items-center justify-between gap-4">
+                            <div class="flex items-center gap-3 flex-1">
+                                <svg class="w-8 h-8 text-yellow-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                </svg>
+                                <div class="flex-1">
+                                    <p class="font-bold text-yellow-900">Wajah Belum Terdaftar</p>
+                                    <p class="text-sm text-yellow-700">Daftarkan wajah Anda untuk menggunakan face recognition</p>
+                                </div>
+                            </div>
+                            <button onclick="startEnrollment()" class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-6 py-3 rounded-lg transition whitespace-nowrap flex items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                </svg>
+                                <span>Daftarkan Wajah</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        async function startEnrollment() {
+            // Use new guided face scan
+            const scanner = new GuidedFaceScan({
+                onComplete: async (enrollmentData) => {
+                    await enrollFaceComprehensive(enrollmentData);
+                },
+                onCancel: () => {
+                    console.log('Enrollment cancelled');
+                },
+                onError: (error) => {
+                    console.error('Scan error:', error);
+                    showToast('Gagal membuka kamera. Pastikan browser memiliki akses ke kamera.', 'error');
+                }
+            });
+            
+            try {
+                await scanner.start();
+            } catch (error) {
+                console.error('Failed to start guided scan:', error);
+                showToast('Gagal memulai scan wajah. Silakan coba lagi.', 'error');
+            }
+        }
+        
+        async function enrollFaceComprehensive(enrollmentData) {
+            try {
+                showToast('Memproses pendaftaran wajah...', 'info');
+                
+                const response = await fetchWithAuth('/api/face/self-enroll-comprehensive', {
+                    method: 'POST',
+                    body: JSON.stringify(enrollmentData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showToast(data.message || 'Wajah berhasil didaftarkan dengan lengkap!', 'success');
+                    
+                    // Refresh enrollment status
+                    await checkEnrollmentStatus();
+                } else {
+                    showToast(data.error || 'Gagal mendaftarkan wajah', 'error');
+                }
+            } catch (error) {
+                console.error('Enrollment error:', error);
+                showToast('Terjadi kesalahan saat mendaftarkan wajah. Silakan coba lagi.', 'error');
+            }
+        }
+        
+        // Make functions global
+        window.startEnrollment = startEnrollment;
+        window.checkEnrollmentStatus = checkEnrollmentStatus;
+        
+        // Check enrollment status on page load
+        checkEnrollmentStatus();
     </script>
+
+    <!-- MediaPipe Face Mesh -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+    
+    <!-- Guided Face Scan Module -->
+    <script src="/static/js/guided-face-scan.js"></script>
 
     <!-- Load Webcam Module -->
     <script src="/static/js/webcam.js"></script>

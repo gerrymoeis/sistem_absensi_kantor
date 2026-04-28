@@ -63,6 +63,23 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		fmt.Sprintf("User %s logged in successfully", response.User.Username), 
 		ipAddress, userAgent)
 
+	// Set token in HttpOnly cookie for secure page navigation
+	// Cookie settings:
+	// - HttpOnly: true (JavaScript cannot access, XSS protection)
+	// - Secure: false for development (set to true in production with HTTPS)
+	// - SameSite: Lax (CSRF protection while allowing normal navigation)
+	// - Path: / (available for all routes)
+	// - MaxAge: 24 hours (86400 seconds)
+	c.SetCookie(
+		"token",           // name
+		response.Token,    // value
+		86400,             // maxAge (24 hours)
+		"/",               // path
+		"",                // domain (empty = current domain)
+		false,             // secure (set to true in production)
+		true,              // httpOnly (XSS protection)
+	)
+
 	c.JSON(http.StatusOK, response)
 }
 
@@ -78,6 +95,9 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 	h.logService.LogSuccess(userID, model.ActionLogout, 
 		fmt.Sprintf("User %s logged out", username), 
 		ipAddress, userAgent)
+
+	// Clear token cookie
+	c.SetCookie("token", "", -1, "/", "", false, true)
 
 	// In stateless JWT, logout is handled client-side by removing token
 	c.JSON(http.StatusOK, gin.H{

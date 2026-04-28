@@ -54,11 +54,12 @@ func (h *AbsensiHandler) ClockIn(c *gin.Context) {
 
 	var req model.ClockInRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		// Keterangan is optional, so empty body is OK
+		// Keterangan and photo are optional, so empty body is OK
 		req.Keterangan = ""
+		req.PhotoData = ""
 	}
 
-	absensi, err := h.absensiService.ClockIn(userID, req.Keterangan)
+	absensi, err := h.absensiService.ClockIn(userID, req.Keterangan, req.PhotoData, ipAddress)
 	if err != nil {
 		// Log failed clock in
 		h.logService.LogFailed(&userID, model.ActionClockIn, 
@@ -98,11 +99,12 @@ func (h *AbsensiHandler) ClockOut(c *gin.Context) {
 
 	var req model.ClockOutRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		// Keterangan is optional, so empty body is OK
+		// Keterangan and photo are optional, so empty body is OK
 		req.Keterangan = ""
+		req.PhotoData = ""
 	}
 
-	absensi, err := h.absensiService.ClockOut(userID, req.Keterangan)
+	absensi, err := h.absensiService.ClockOut(userID, req.Keterangan, req.PhotoData, ipAddress)
 	if err != nil {
 		// Log failed clock out
 		h.logService.LogFailed(&userID, model.ActionClockOut, 

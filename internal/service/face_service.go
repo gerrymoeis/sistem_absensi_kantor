@@ -48,8 +48,75 @@ func (s *FaceService) Close() {
 	}
 }
 
-// EnrollFace enrolls a new face for a user
+// EnrollFace enrolls a new face for a user (single photo - legacy)
 func (s *FaceService) EnrollFace(userID int64, imageData string) error {
+	return s.enrollSinglePhoto(userID, imageData, "frontal")
+}
+
+// EnrollComprehensive enrolls multiple face photos for a user (5 angles)
+func (s *FaceService) EnrollComprehensive(userID int64, photos []model.EnrollmentPhoto) error {
+	// Validate we have exactly 5 photos
+	if len(photos) != 5 {
+		return fmt.Errorf("exactly 5 photos required (got %d)", len(photos))
+	}
+
+	// Validate all required angles are present
+	requiredAngles := map[string]bool{
+		"frontal": false,
+		"left":    false,
+		"right":   false,
+		"up":      false,
+		"down":    false,
+	}
+
+	for _, photo := range photos {
+		if _, exists := requiredAngles[photo.Step]; !exists {
+			return fmt.Errorf("invalid angle: %s", photo.Step)
+		}
+		requiredAngles[photo.Step] = true
+	}
+
+	// Check all angles are present
+	for angle, present := range requiredAngles {
+		if !present {
+			return fmt.Errorf("missing required angle: %s", angle)
+		}
+	}
+
+	// Delete existing encodings for this user (fresh enrollment)
+	if err := s.repo.DeleteUserEncodings(userID); err != nil {
+		return fmt.Errorf("failed to delete existing encodings: %w", err)
+	}
+
+	// Process each photo
+	var successCount int
+	var lastError error
+
+	for _, photo := range photos {
+		err := s.enrollSinglePhoto(userID, photo.Data, photo.Step)
+		if err != nil {
+			// Log error but continue with other photos
+			lastError = fmt.Errorf("failed to process %s photo: %w", photo.Step, err)
+			continue
+		}
+		successCount++
+	}
+
+	// Require at least 3 successful enrollments (60% success rate)
+	if successCount < 3 {
+		// Rollback: delete all encodings for this user
+		_ = s.repo.DeleteUserEncodings(userID)
+		if lastError != nil {
+			return fmt.Errorf("enrollment failed: only %d/5 photos processed successfully. Last error: %w", successCount, lastError)
+		}
+		return fmt.Errorf("enrollment failed: only %d/5 photos processed successfully", successCount)
+	}
+
+	return nil
+}
+
+// enrollSinglePhoto enrolls a single photo with specified angle
+func (s *FaceService) enrollSinglePhoto(userID int64, imageData string, angle string) error {
 	// Decode base64 image
 	imgBytes, err := base64.StdEncoding.DecodeString(imageData)
 	if err != nil {
@@ -111,6 +178,7 @@ func (s *FaceService) EnrollFace(userID int64, imageData string) error {
 		UserID:       userID,
 		Encoding:     encodingBytes,
 		QualityScore: qualityScore,
+		Angle:        angle, // Store the angle
 	}
 
 	if err := s.repo.SaveEncoding(encoding); err != nil {

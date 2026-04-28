@@ -57,10 +57,17 @@ func main() {
 	activityLogRepo := repository.NewActivityLogRepository(db)
 	adminRepo := repository.NewAdminRepository(db)
 	faceRepo := repository.NewFaceRepository(db)
+	leaveRequestRepo := repository.NewLeaveRequestRepository(db)
 
 	// Initialize services
 	authService := service.NewAuthService(userRepo, cfg.Security.JWTSecret)
-	absensiService := service.NewAbsensiService(absensiRepo, userRepo)
+	photoService := service.NewPhotoService("./data/photos")
+	
+	// Ensure photo directory exists
+	if err := photoService.EnsureBasePathExists(); err != nil {
+		log.Fatalf("Failed to create photo directory: %v", err)
+	}
+	
 	logService := service.NewActivityLogService(activityLogRepo)
 	adminService := service.NewAdminService(adminRepo, userRepo)
 	userService := service.NewUserService(userRepo)
@@ -85,12 +92,17 @@ func main() {
 			}
 		}
 	}
+	
+	// Initialize absensi service (with face service if available)
+	absensiService := service.NewAbsensiService(absensiRepo, userRepo, photoService, faceService)
+	leaveRequestService := service.NewLeaveRequestService(leaveRequestRepo, absensiRepo)
 
 	// Initialize handlers
 	authHandler := handler.NewAuthHandler(authService, logService)
 	absensiHandler := handler.NewAbsensiHandler(absensiService, logService)
 	adminHandler := handler.NewAdminHandler(adminService, userService, logService)
 	exportHandler := handler.NewExportHandler(exportService, logService)
+	leaveRequestHandler := handler.NewLeaveRequestHandler(leaveRequestService, logService)
 
 	// Setup Gin router
 	// Set release mode by default for production
@@ -145,7 +157,16 @@ func main() {
 	router.GET("/dashboard", absensiHandler.DashboardPage)
 	router.GET("/history", absensiHandler.HistoryPage)
 	router.GET("/profile", authHandler.ProfilePage)
-	router.GET("/admin/dashboard", adminHandler.DashboardPage)
+	
+	// Admin page (protected with middleware for server-side validation)
+	admin := router.Group("/admin")
+	admin.Use(middleware.PageAuthRequired(cfg.Security.JWTSecret))
+	admin.Use(middleware.PageAdminRequired())
+	{
+		admin.GET("", adminHandler.DashboardPage)           // /admin
+		admin.GET("/", adminHandler.DashboardPage)          // /admin/
+		admin.GET("/dashboard", adminHandler.DashboardPage) // /admin/dashboard (legacy)
+	}
 	
 	// Login endpoint with stricter rate limiting
 	// Development: 50 req/min, Production: 5 req/min per IP
@@ -153,6 +174,11 @@ func main() {
 	
 	// Face login endpoint (no rate limiting needed as face recognition already has rate limiting)
 	router.POST("/api/auth/login-face", authHandler.LoginWithFace)
+	
+	// Face recognition for login (public endpoint - no auth required)
+	if faceHandler != nil {
+		router.POST("/api/face/recognize-login", faceHandler.RecognizeFace)
+	}
 
 	// Protected API routes (require authentication)
 	authorized := router.Group("/api")
@@ -175,7 +201,15 @@ func main() {
 		if faceHandler != nil {
 			authorized.POST("/face/recognize", faceHandler.RecognizeFace)
 			authorized.GET("/face/status", faceHandler.CheckEnrollmentStatus)
+			authorized.POST("/face/self-enroll", faceHandler.SelfEnroll)
+			authorized.POST("/face/self-enroll-comprehensive", faceHandler.SelfEnrollComprehensive) // New: 5-photo enrollment
 		}
+
+		// Leave request endpoints
+		authorized.POST("/leave-requests", leaveRequestHandler.Create)
+		authorized.GET("/leave-requests", leaveRequestHandler.GetUserRequests)
+		authorized.GET("/leave-requests/:id", leaveRequestHandler.GetByID)
+		authorized.DELETE("/leave-requests/:id", leaveRequestHandler.Delete)
 	}
 
 	// Admin routes (removed - moved to adminAPI)
@@ -219,6 +253,10 @@ func main() {
 			adminAPI.DELETE("/face/:user_id", faceHandler.DeleteUserFaceData)
 			adminAPI.GET("/face/stats", faceHandler.GetEncodingStats)
 		}
+
+		// Leave request management
+		adminAPI.GET("/leave-requests", leaveRequestHandler.GetAllRequests)
+		adminAPI.PUT("/leave-requests/:id/review", leaveRequestHandler.Review)
 	}
 
 	// Start server

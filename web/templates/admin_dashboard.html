@@ -214,6 +214,9 @@
                     <button onclick="switchTab('face')" id="tab-face" class="tab-button px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
                         Pendaftaran Wajah
                     </button>
+                    <button onclick="switchTab('leave-requests')" id="tab-leave-requests" class="tab-button px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                        Permohonan Izin
+                    </button>
                 </nav>
             </div>
 
@@ -282,9 +285,108 @@
             <!-- Tab Content: Face Enrollment -->
             <div id="content-face" class="tab-content p-6 hidden">
                 <div class="mb-6">
-                    <h3 class="text-lg font-bold text-gray-800 mb-2">Pendaftaran Wajah Karyawan</h3>
-                    <p class="text-sm text-gray-600">Daftarkan wajah karyawan untuk fitur face recognition</p>
+                    <h3 class="text-lg font-bold text-gray-800 mb-2">Manajemen Wajah Karyawan</h3>
+                    <p class="text-sm text-gray-600">Kelola pendaftaran wajah karyawan untuk fitur face recognition</p>
                 </div>
+
+                <!-- Statistics Dashboard -->
+                <div id="face-statistics" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <!-- Total Users -->
+                    <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-4 text-white">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-sm font-medium opacity-90">Total Karyawan</p>
+                            <svg class="w-8 h-8 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                        </div>
+                        <p id="stat-total-users" class="text-3xl font-bold">-</p>
+                    </div>
+
+                    <!-- Enrolled Users -->
+                    <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-4 text-white">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-sm font-medium opacity-90">Sudah Terdaftar</p>
+                            <svg class="w-8 h-8 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <p id="stat-enrolled-users" class="text-3xl font-bold">-</p>
+                        <p id="stat-enrollment-percentage" class="text-xs opacity-90 mt-1">-</p>
+                    </div>
+
+                    <!-- Total Encodings -->
+                    <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-4 text-white">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-sm font-medium opacity-90">Total Foto</p>
+                            <svg class="w-8 h-8 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                        <p id="stat-total-encodings" class="text-3xl font-bold">-</p>
+                        <p id="stat-avg-photos" class="text-xs opacity-90 mt-1">-</p>
+                    </div>
+
+                    <!-- Last Activity -->
+                    <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg p-4 text-white">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-sm font-medium opacity-90">Aktivitas Terakhir</p>
+                            <svg class="w-8 h-8 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <p id="stat-last-activity" class="text-sm font-semibold">-</p>
+                    </div>
+                </div>
+
+                <!-- Enrolled Users List -->
+                <div class="bg-white border border-gray-200 rounded-lg mb-6">
+                    <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                        <div>
+                            <h4 class="font-bold text-gray-800">Daftar Karyawan Terdaftar</h4>
+                            <p class="text-sm text-gray-600">Kelola data wajah karyawan yang sudah terdaftar</p>
+                        </div>
+                        <button onclick="refreshEnrolledUsers()" class="text-purple-600 hover:text-purple-700 p-2 rounded-lg hover:bg-purple-50 transition">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <!-- Search Bar -->
+                    <div class="px-6 py-3 bg-gray-50 border-b border-gray-200">
+                        <input 
+                            type="text" 
+                            id="enrolled-search" 
+                            placeholder="Cari nama atau username..." 
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            oninput="filterEnrolledUsers()"
+                        >
+                    </div>
+
+                    <!-- Users List -->
+                    <div id="enrolled-users-list" class="divide-y divide-gray-200">
+                        <!-- Loading state -->
+                        <div id="enrolled-loading" class="p-8 text-center">
+                            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mb-2"></div>
+                            <p class="text-gray-600">Memuat data...</p>
+                        </div>
+                        
+                        <!-- Empty state -->
+                        <div id="enrolled-empty" class="p-8 text-center hidden">
+                            <svg class="w-16 h-16 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+                            </svg>
+                            <p class="text-gray-500 font-medium">Belum ada karyawan yang terdaftar</p>
+                            <p class="text-sm text-gray-400 mt-1">Mulai daftarkan wajah karyawan di bawah</p>
+                        </div>
+                        
+                        <!-- Users will be inserted here -->
+                    </div>
+                </div>
+
+                <!-- Enrollment Form -->
+                <div class="bg-white border border-gray-200 rounded-lg p-6">
+                    <h4 class="font-bold text-gray-800 mb-4">Daftarkan Wajah Baru</h4>
 
                 <!-- User Selection -->
                 <div class="bg-gray-50 rounded-lg p-4 mb-6">
@@ -370,6 +472,79 @@
                     </svg>
                     <p class="text-gray-500 text-lg font-medium">Pilih karyawan untuk memulai pendaftaran wajah</p>
                 </div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Leave Requests -->
+            <div id="content-leave-requests" class="tab-content p-6 hidden">
+                <div class="mb-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-2">Manajemen Permohonan Izin</h3>
+                    <p class="text-sm text-gray-600">Tinjau dan setujui/tolak permohonan izin, sakit, dan cuti karyawan</p>
+                </div>
+
+                <!-- Filter -->
+                <div class="mb-4 flex gap-2">
+                    <select id="leave-status-filter" onchange="loadLeaveRequests()" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        <option value="">Semua Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Disetujui</option>
+                        <option value="rejected">Ditolak</option>
+                    </select>
+                    <button onclick="loadLeaveRequests()" class="text-purple-600 hover:text-purple-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Leave Requests Table -->
+                <div id="leave-requests-table" class="overflow-x-auto">
+                    <div class="text-center py-8">
+                        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                        <p class="text-gray-500 mt-2">Memuat data...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Face Data Confirmation Modal -->
+    <div id="deleteFaceModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-xl font-bold text-gray-800">Konfirmasi Hapus Data Wajah</h3>
+            </div>
+            
+            <div class="p-6">
+                <div class="flex items-start mb-4">
+                    <div class="flex-shrink-0 w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mr-4">
+                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-800 mb-2">Apakah Anda yakin?</p>
+                        <p class="text-sm text-gray-600 mb-2">Anda akan menghapus semua data wajah untuk:</p>
+                        <p id="delete-face-user-name" class="font-bold text-gray-900"></p>
+                        <p class="text-sm text-gray-600 mt-2">
+                            <span id="delete-face-photo-count" class="font-semibold"></span> foto akan dihapus permanen.
+                        </p>
+                        <div class="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                            <p class="text-xs text-yellow-800">
+                                <strong>Peringatan:</strong> Tindakan ini tidak dapat dibatalkan. Karyawan harus mendaftar ulang untuk menggunakan fitur face recognition.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="px-6 py-4 bg-gray-50 rounded-b-xl flex gap-3">
+                <button onclick="closeDeleteFaceModal()" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition font-medium text-gray-700">
+                    Batal
+                </button>
+                <button id="confirm-delete-face-btn" onclick="confirmDeleteFaceData()" class="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition font-medium">
+                    Ya, Hapus Data
+                </button>
             </div>
         </div>
     </div>
@@ -425,7 +600,7 @@
                             type="password" 
                             id="password" 
                             class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                            placeholder="Minimal 6 karakter"
+                            placeholder="Minimal 8 karakter"
                         >
                         <button 
                             type="button" 
@@ -438,7 +613,46 @@
                             </svg>
                         </button>
                     </div>
-                    <p class="text-xs text-gray-500 mt-1" id="passwordHint">Minimal 6 karakter</p>
+                    
+                    <!-- Password Validation Indicator -->
+                    <div id="password-validation-add" class="mt-2 p-3 bg-gray-50 rounded-lg border border-gray-200 hidden">
+                        <p class="text-xs font-semibold text-gray-700 mb-2">Aturan Password:</p>
+                        <ul class="space-y-1 text-xs">
+                            <li id="rule-length" class="flex items-center gap-2">
+                                <span class="rule-icon text-red-600 font-bold">✗</span>
+                                <span class="rule-text">Minimal 8 karakter (0/8)</span>
+                            </li>
+                            <li id="rule-uppercase" class="flex items-center gap-2">
+                                <span class="rule-icon text-red-600 font-bold">✗</span>
+                                <span class="rule-text">Huruf besar (A-Z)</span>
+                            </li>
+                            <li id="rule-lowercase" class="flex items-center gap-2">
+                                <span class="rule-icon text-red-600 font-bold">✗</span>
+                                <span class="rule-text">Huruf kecil (a-z)</span>
+                            </li>
+                            <li id="rule-digit" class="flex items-center gap-2">
+                                <span class="rule-icon text-red-600 font-bold">✗</span>
+                                <span class="rule-text">Angka (0-9)</span>
+                            </li>
+                            <li id="rule-special" class="flex items-center gap-2">
+                                <span class="rule-icon text-red-600 font-bold">✗</span>
+                                <span class="rule-text">Karakter spesial (!@#$%^&*...)</span>
+                            </li>
+                        </ul>
+                        
+                        <!-- Password Strength Bar -->
+                        <div class="mt-3">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-xs font-semibold text-gray-700">Kekuatan Password:</span>
+                                <span id="strength-text" class="text-xs font-semibold text-gray-500">-</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div id="strength-bar" class="h-2 rounded-full transition-all duration-300 bg-gray-300" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p class="text-xs text-gray-500 mt-1" id="passwordHint">Minimal 8 karakter dengan kombinasi huruf besar, kecil, angka, dan karakter spesial</p>
                 </div>
                 
                 <!-- Confirm Password -->
@@ -446,12 +660,24 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-1">
                         Konfirmasi Password <span id="confirmRequired">*</span>
                     </label>
-                    <input 
-                        type="password" 
-                        id="confirmPassword" 
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        placeholder="Ulangi password"
-                    >
+                    <div class="relative">
+                        <input 
+                            type="password" 
+                            id="confirmPassword" 
+                            class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            placeholder="Ulangi password"
+                        >
+                        <button 
+                            type="button" 
+                            onclick="toggleConfirmPassword()" 
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                        >
+                            <svg id="confirmEyeIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
                 
                 <!-- Role -->
@@ -538,6 +764,248 @@
         </div>
     </div>
 
+    <!-- Reset Password Modal -->
+    <div id="resetPasswordModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-800">Reset Password</h3>
+                        <p class="text-sm text-gray-600" id="resetPasswordUsername">-</p>
+                    </div>
+                </div>
+                <button onclick="closeResetPasswordModal()" class="text-gray-400 hover:text-gray-600 transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <form id="resetPasswordForm" class="p-6 space-y-4">
+                <input type="hidden" id="resetUserId" value="">
+                
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                    <div class="flex items-start">
+                        <svg class="w-5 h-5 text-yellow-600 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                        <p class="text-sm text-yellow-800">Password lama user akan diganti dengan password baru yang Anda tentukan.</p>
+                    </div>
+                </div>
+                
+                <!-- New Password -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Password Baru *</label>
+                    <div class="relative">
+                        <input 
+                            type="password" 
+                            id="resetNewPassword" 
+                            required 
+                            class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            placeholder="Minimal 8 karakter"
+                        >
+                        <button 
+                            type="button" 
+                            onclick="toggleResetPassword()" 
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                        >
+                            <svg id="resetEyeIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <!-- Password Validation Indicator -->
+                    <div id="password-validation-reset" class="mt-2 p-3 bg-gray-50 rounded-lg border border-gray-200 hidden">
+                        <p class="text-xs font-semibold text-gray-700 mb-2">Aturan Password:</p>
+                        <ul class="space-y-1 text-xs">
+                            <li id="rule-length" class="flex items-center gap-2">
+                                <span class="rule-icon text-red-600 font-bold">✗</span>
+                                <span class="rule-text">Minimal 8 karakter (0/8)</span>
+                            </li>
+                            <li id="rule-uppercase" class="flex items-center gap-2">
+                                <span class="rule-icon text-red-600 font-bold">✗</span>
+                                <span class="rule-text">Huruf besar (A-Z)</span>
+                            </li>
+                            <li id="rule-lowercase" class="flex items-center gap-2">
+                                <span class="rule-icon text-red-600 font-bold">✗</span>
+                                <span class="rule-text">Huruf kecil (a-z)</span>
+                            </li>
+                            <li id="rule-digit" class="flex items-center gap-2">
+                                <span class="rule-icon text-red-600 font-bold">✗</span>
+                                <span class="rule-text">Angka (0-9)</span>
+                            </li>
+                            <li id="rule-special" class="flex items-center gap-2">
+                                <span class="rule-icon text-red-600 font-bold">✗</span>
+                                <span class="rule-text">Karakter spesial (!@#$%^&*...)</span>
+                            </li>
+                        </ul>
+                        
+                        <!-- Password Strength Bar -->
+                        <div class="mt-3">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-xs font-semibold text-gray-700">Kekuatan Password:</span>
+                                <span id="strength-text" class="text-xs font-semibold text-gray-500">-</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div id="strength-bar" class="h-2 rounded-full transition-all duration-300 bg-gray-300" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Confirm Password -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Konfirmasi Password *</label>
+                    <div class="relative">
+                        <input 
+                            type="password" 
+                            id="resetConfirmPassword" 
+                            required 
+                            class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            placeholder="Ulangi password baru"
+                        >
+                        <button 
+                            type="button" 
+                            onclick="toggleResetConfirmPassword()" 
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                        >
+                            <svg id="resetConfirmEyeIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Buttons -->
+                <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+                    <button 
+                        type="button" 
+                        onclick="closeResetPasswordModal()" 
+                        class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
+                    >
+                        Batal
+                    </button>
+                    <button 
+                        type="submit" 
+                        class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition flex items-center gap-2"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <span>Reset Password</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Review Leave Request Modal -->
+    <div id="reviewLeaveModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="sticky top-0 bg-white px-6 py-4 border-b border-gray-200 flex justify-between items-center z-10">
+                <h3 class="text-xl font-bold text-gray-800">Tinjau Permohonan Izin</h3>
+                <button onclick="closeReviewLeaveModal()" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <!-- Leave Request Details -->
+                <div class="space-y-4 mb-6">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-sm font-semibold text-gray-600">Nama Karyawan</label>
+                            <p id="review-full-name" class="text-gray-900 font-medium"></p>
+                        </div>
+                        <div>
+                            <label class="text-sm font-semibold text-gray-600">Username</label>
+                            <p id="review-username" class="text-gray-900"></p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-sm font-semibold text-gray-600">Jenis</label>
+                            <p id="review-leave-type" class="text-gray-900 font-medium uppercase"></p>
+                        </div>
+                        <div>
+                            <label class="text-sm font-semibold text-gray-600">Tanggal</label>
+                            <p id="review-leave-date" class="text-gray-900"></p>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="text-sm font-semibold text-gray-600">Alasan</label>
+                        <p id="review-reason" class="text-gray-900 whitespace-pre-wrap"></p>
+                    </div>
+                    
+                    <div>
+                        <label class="text-sm font-semibold text-gray-600">Bukti Pendukung</label>
+                        <div id="review-proof-container"></div>
+                    </div>
+                    
+                    <div>
+                        <label class="text-sm font-semibold text-gray-600">Diajukan Pada</label>
+                        <p id="review-created-at" class="text-gray-900"></p>
+                    </div>
+                </div>
+
+                <!-- Review Form -->
+                <form id="reviewForm" class="space-y-4">
+                    <input type="hidden" id="review-request-id" />
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Keputusan <span class="text-red-500">*</span>
+                        </label>
+                        <div class="flex gap-4">
+                            <label class="flex items-center">
+                                <input type="radio" name="review-status" value="approved" required class="mr-2" />
+                                <span class="text-green-600 font-semibold">✓ Setujui</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="review-status" value="rejected" required class="mr-2" />
+                                <span class="text-red-600 font-semibold">✗ Tolak</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="review-notes" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Catatan (Opsional)
+                        </label>
+                        <textarea 
+                            id="review-notes" 
+                            rows="3" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+                            placeholder="Tambahkan catatan jika diperlukan..."
+                        ></textarea>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="px-6 py-4 bg-gray-50 rounded-b-xl flex gap-3">
+                <button onclick="closeReviewLeaveModal()" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition">
+                    Batal
+                </button>
+                <button onclick="submitReview()" id="submit-review-btn" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition">
+                    Kirim Keputusan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/password-validator.js"></script>
     <script>
         const token = localStorage.getItem('token');
         const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -554,6 +1022,30 @@
             toast.textContent = message;
             container.appendChild(toast);
             setTimeout(() => toast.remove(), 4000);
+        }
+        
+        function showToastWithAction(message, type = 'success', actionText, actionCallback) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+            toast.className = `${bgColor} text-white px-6 py-4 rounded-lg shadow-lg toast-enter min-w-[300px] flex items-center justify-between gap-4`;
+            
+            const messageSpan = document.createElement('span');
+            messageSpan.textContent = message;
+            
+            const actionBtn = document.createElement('button');
+            actionBtn.textContent = actionText;
+            actionBtn.className = 'bg-white bg-opacity-20 hover:bg-opacity-30 px-3 py-1 rounded text-sm font-semibold transition whitespace-nowrap';
+            actionBtn.onclick = () => {
+                actionCallback();
+                toast.remove();
+            };
+            
+            toast.appendChild(messageSpan);
+            toast.appendChild(actionBtn);
+            container.appendChild(toast);
+            
+            setTimeout(() => toast.remove(), 6000); // Longer timeout for action toast
         }
 
         async function fetchWithAuth(url, options = {}) {
@@ -729,6 +1221,7 @@
             else if (tab === 'users') loadUsers();
             else if (tab === 'logs') loadLogs();
             else if (tab === 'face') loadFaceEnrollment();
+            else if (tab === 'leave-requests') loadLeaveRequests();
         }
 
         function logout() {
@@ -836,19 +1329,31 @@
 
         // User Management Functions
         let deleteUserId = null;
+        let passwordValidatorAdd = null;
+        let passwordValidatorReset = null;
 
         function openAddUserModal() {
             document.getElementById('modalTitle').textContent = 'Tambah User Baru';
             document.getElementById('userForm').reset();
             document.getElementById('userId').value = '';
             document.getElementById('isEditMode').value = 'false';
+            
+            // Show password fields for Add mode
+            document.getElementById('passwordField').style.display = 'block';
+            document.getElementById('confirmPasswordField').style.display = 'block';
+            
             document.getElementById('password').required = true;
             document.getElementById('confirmPassword').required = true;
             document.getElementById('passwordRequired').style.display = 'inline';
             document.getElementById('confirmRequired').style.display = 'inline';
-            document.getElementById('passwordHint').textContent = 'Minimal 6 karakter';
+            document.getElementById('passwordHint').textContent = 'Minimal 8 karakter dengan kombinasi huruf besar, kecil, angka, dan karakter spesial';
             document.getElementById('submitButtonText').textContent = 'Simpan User';
             document.getElementById('userModal').classList.remove('hidden');
+            
+            // Initialize password validator for Add mode
+            if (!passwordValidatorAdd) {
+                passwordValidatorAdd = new PasswordValidator('password', 'password-validation-add');
+            }
         }
 
         async function openEditUserModal(userId) {
@@ -864,13 +1369,15 @@
                     document.getElementById('fullName').value = data.data.full_name;
                     document.getElementById('role').value = data.data.role;
                     document.getElementById('isActive').checked = data.data.is_active;
+                    
+                    // HIDE password fields in Edit mode (backend doesn't support password update via edit)
+                    document.getElementById('passwordField').style.display = 'none';
+                    document.getElementById('confirmPasswordField').style.display = 'none';
                     document.getElementById('password').value = '';
                     document.getElementById('confirmPassword').value = '';
                     document.getElementById('password').required = false;
                     document.getElementById('confirmPassword').required = false;
-                    document.getElementById('passwordRequired').style.display = 'none';
-                    document.getElementById('confirmRequired').style.display = 'none';
-                    document.getElementById('passwordHint').textContent = 'Kosongkan jika tidak ingin mengubah password';
+                    
                     document.getElementById('submitButtonText').textContent = 'Update User';
                     document.getElementById('userModal').classList.remove('hidden');
                 } else {
@@ -899,6 +1406,19 @@
             }
         }
 
+        function toggleConfirmPassword() {
+            const input = document.getElementById('confirmPassword');
+            const icon = document.getElementById('confirmEyeIcon');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>';
+            } else {
+                input.type = 'password';
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>';
+            }
+        }
+
         document.getElementById('userForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -907,19 +1427,24 @@
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             
-            // Validate password if provided
-            if (password || confirmPassword) {
-                if (password.length < 6) {
-                    showToast('Password minimal 6 karakter', 'error');
+            // Validate password if provided (only for Add mode, Edit mode hides password fields)
+            if (!isEditMode) {
+                if (!password) {
+                    showToast('Password wajib diisi untuk user baru', 'error');
                     return;
                 }
+                
+                // Use PasswordValidator for validation
+                if (!passwordValidatorAdd.isValid()) {
+                    const errors = passwordValidatorAdd.getErrors();
+                    showToast('Password tidak memenuhi syarat: ' + errors[0], 'error');
+                    return;
+                }
+                
                 if (password !== confirmPassword) {
                     showToast('Password dan konfirmasi password tidak cocok', 'error');
                     return;
                 }
-            } else if (!isEditMode) {
-                showToast('Password wajib diisi untuk user baru', 'error');
-                return;
             }
             
             const userData = {
@@ -929,8 +1454,8 @@
                 is_active: document.getElementById('isActive').checked
             };
             
-            // Only include password if provided
-            if (password) {
+            // Only include password for Add mode
+            if (!isEditMode && password) {
                 userData.password = password;
             }
             
@@ -1034,13 +1559,67 @@
             }
         }
 
-        async function openResetPasswordModal(userId, username) {
-            const newPassword = prompt(`Reset password untuk user: ${username}\n\nMasukkan password baru (minimal 6 karakter):`);
+        // Reset Password Modal Functions
+        function openResetPasswordModal(userId, username) {
+            document.getElementById('resetUserId').value = userId;
+            document.getElementById('resetPasswordUsername').textContent = `User: ${username}`;
+            document.getElementById('resetPasswordForm').reset();
+            document.getElementById('resetPasswordModal').classList.remove('hidden');
             
-            if (!newPassword) return;
+            // Initialize password validator for Reset mode
+            if (!passwordValidatorReset) {
+                passwordValidatorReset = new PasswordValidator('resetNewPassword', 'password-validation-reset');
+            }
+        }
+
+        function closeResetPasswordModal() {
+            document.getElementById('resetPasswordModal').classList.add('hidden');
+            document.getElementById('resetPasswordForm').reset();
+        }
+
+        function toggleResetPassword() {
+            const input = document.getElementById('resetNewPassword');
+            const icon = document.getElementById('resetEyeIcon');
             
-            if (newPassword.length < 6) {
-                showToast('Password minimal 6 karakter', 'error');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>';
+            } else {
+                input.type = 'password';
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>';
+            }
+        }
+
+        function toggleResetConfirmPassword() {
+            const input = document.getElementById('resetConfirmPassword');
+            const icon = document.getElementById('resetConfirmEyeIcon');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>';
+            } else {
+                input.type = 'password';
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>';
+            }
+        }
+
+        document.getElementById('resetPasswordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const userId = document.getElementById('resetUserId').value;
+            const username = document.getElementById('resetPasswordUsername').textContent.replace('User: ', '');
+            const newPassword = document.getElementById('resetNewPassword').value;
+            const confirmPassword = document.getElementById('resetConfirmPassword').value;
+            
+            // Validate using PasswordValidator
+            if (!passwordValidatorReset.isValid()) {
+                const errors = passwordValidatorReset.getErrors();
+                showToast('Password tidak memenuhi syarat: ' + errors[0], 'error');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                showToast('Password dan konfirmasi password tidak cocok', 'error');
                 return;
             }
             
@@ -1052,6 +1631,7 @@
                 
                 if (response.ok) {
                     showToast('Password berhasil direset', 'success');
+                    closeResetPasswordModal();
                     alert(`Password baru untuk ${username}:\n${newPassword}\n\nSilakan catat dan berikan ke user.`);
                 } else {
                     const data = await response.json();
@@ -1060,13 +1640,14 @@
             } catch (error) {
                 showToast('Terjadi kesalahan saat reset password', 'error');
             }
-        }
+        });
 
         // Close modals on Escape key
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 closeUserModal();
                 closeDeleteModal();
+                closeResetPasswordModal();
             }
         });
 
@@ -1077,11 +1658,278 @@
         let capturedPhotos = [];
         let selectedUserId = null;
         let selectedUserName = '';
+        let allEnrolledUsers = [];
+        let deleteFaceUserId = null;
 
         // Load face enrollment tab
         async function loadFaceEnrollment() {
             // Load users for dropdown
             await loadUsersForFaceEnrollment();
+            // Load statistics and enrolled users
+            await loadFaceStatistics();
+            await loadEnrolledUsers();
+        }
+
+        // Load face statistics
+        async function loadFaceStatistics() {
+            try {
+                const [statsResponse, usersResponse] = await Promise.all([
+                    fetchWithAuth('/api/admin/face/stats'),
+                    fetchWithAuth('/api/admin/users')
+                ]);
+                
+                const statsData = await statsResponse.json();
+                const usersData = await usersResponse.json();
+                
+                const stats = statsData.data || [];
+                const totalUsers = usersData.data?.length || 0;
+                const enrolledUsers = stats.filter(s => s.encoding_count > 0).length;
+                const totalEncodings = stats.reduce((sum, s) => sum + s.encoding_count, 0);
+                const enrollmentPercentage = totalUsers > 0 ? Math.round((enrolledUsers / totalUsers) * 100) : 0;
+                const avgPhotos = enrolledUsers > 0 ? (totalEncodings / enrolledUsers).toFixed(1) : 0;
+                
+                // Find last activity
+                let lastActivity = '-';
+                if (stats.length > 0) {
+                    const sortedStats = stats.sort((a, b) => new Date(b.last_enrolled) - new Date(a.last_enrolled));
+                    if (sortedStats[0].last_enrolled) {
+                        const lastDate = new Date(sortedStats[0].last_enrolled);
+                        const now = new Date();
+                        const diffMs = now - lastDate;
+                        const diffMins = Math.floor(diffMs / 60000);
+                        const diffHours = Math.floor(diffMs / 3600000);
+                        const diffDays = Math.floor(diffMs / 86400000);
+                        
+                        if (diffMins < 1) {
+                            lastActivity = 'Baru saja';
+                        } else if (diffMins < 60) {
+                            lastActivity = `${diffMins} menit lalu`;
+                        } else if (diffHours < 24) {
+                            lastActivity = `${diffHours} jam lalu`;
+                        } else if (diffDays < 7) {
+                            lastActivity = `${diffDays} hari lalu`;
+                        } else {
+                            lastActivity = lastDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+                        }
+                    }
+                }
+                
+                // Update UI
+                document.getElementById('stat-total-users').textContent = totalUsers;
+                document.getElementById('stat-enrolled-users').textContent = enrolledUsers;
+                document.getElementById('stat-enrollment-percentage').textContent = `${enrollmentPercentage}% dari total karyawan`;
+                document.getElementById('stat-total-encodings').textContent = totalEncodings;
+                document.getElementById('stat-avg-photos').textContent = `Rata-rata ${avgPhotos} foto/karyawan`;
+                document.getElementById('stat-last-activity').textContent = lastActivity;
+                
+            } catch (error) {
+                console.error('Error loading face statistics:', error);
+            }
+        }
+
+        // Load enrolled users list
+        async function loadEnrolledUsers() {
+            const listEl = document.getElementById('enrolled-users-list');
+            const loadingEl = document.getElementById('enrolled-loading');
+            const emptyEl = document.getElementById('enrolled-empty');
+            
+            try {
+                loadingEl.classList.remove('hidden');
+                emptyEl.classList.add('hidden');
+                
+                const [statsResponse, usersResponse] = await Promise.all([
+                    fetchWithAuth('/api/admin/face/stats'),
+                    fetchWithAuth('/api/admin/users')
+                ]);
+                
+                const statsData = await statsResponse.json();
+                const usersData = await usersResponse.json();
+                
+                const stats = statsData.data || [];
+                const users = usersData.data || [];
+                
+                // Merge stats with user data
+                allEnrolledUsers = stats
+                    .filter(s => s.encoding_count > 0)
+                    .map(stat => {
+                        const user = users.find(u => u.id === stat.user_id);
+                        return {
+                            ...stat,
+                            full_name: user?.full_name || 'Unknown',
+                            username: user?.username || 'unknown'
+                        };
+                    })
+                    .sort((a, b) => new Date(b.last_enrolled) - new Date(a.last_enrolled));
+                
+                loadingEl.classList.add('hidden');
+                
+                if (allEnrolledUsers.length === 0) {
+                    emptyEl.classList.remove('hidden');
+                    // Remove old items
+                    const items = listEl.querySelectorAll('.enrolled-user-item');
+                    items.forEach(item => item.remove());
+                } else {
+                    emptyEl.classList.add('hidden');
+                    renderEnrolledUsers(allEnrolledUsers);
+                }
+                
+            } catch (error) {
+                console.error('Error loading enrolled users:', error);
+                loadingEl.classList.add('hidden');
+                showToast('Gagal memuat daftar karyawan terdaftar', 'error');
+            }
+        }
+
+        // Render enrolled users list
+        function renderEnrolledUsers(users) {
+            const listEl = document.getElementById('enrolled-users-list');
+            
+            // Remove old items
+            const oldItems = listEl.querySelectorAll('.enrolled-user-item');
+            oldItems.forEach(item => item.remove());
+            
+            // Add new items
+            users.forEach(user => {
+                const lastEnrolled = new Date(user.last_enrolled).toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'enrolled-user-item px-6 py-4 hover:bg-gray-50 transition';
+                itemDiv.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4 flex-1">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
+                                ${user.full_name.charAt(0).toUpperCase()}
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-semibold text-gray-800">${user.full_name}</p>
+                                <p class="text-sm text-gray-600">@${user.username}</p>
+                            </div>
+                            <div class="text-center px-4">
+                                <p class="text-2xl font-bold text-purple-600">${user.encoding_count}</p>
+                                <p class="text-xs text-gray-500">Foto</p>
+                            </div>
+                            <div class="text-right px-4">
+                                <p class="text-sm text-gray-600">Terakhir:</p>
+                                <p class="text-xs text-gray-500">${lastEnrolled}</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-2 ml-4">
+                            <button onclick="openDeleteFaceModal(${user.user_id}, '${user.full_name}', ${user.encoding_count})" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition flex items-center gap-2" title="Hapus Data Wajah">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                                <span>Hapus</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                listEl.appendChild(itemDiv);
+            });
+        }
+
+        // Filter enrolled users
+        function filterEnrolledUsers() {
+            const searchTerm = document.getElementById('enrolled-search').value.toLowerCase();
+            
+            if (!searchTerm) {
+                renderEnrolledUsers(allEnrolledUsers);
+                return;
+            }
+            
+            const filtered = allEnrolledUsers.filter(user => 
+                user.full_name.toLowerCase().includes(searchTerm) ||
+                user.username.toLowerCase().includes(searchTerm)
+            );
+            
+            renderEnrolledUsers(filtered);
+        }
+
+        // Refresh enrolled users
+        async function refreshEnrolledUsers() {
+            await loadFaceStatistics();
+            await loadEnrolledUsers();
+            showToast('Data berhasil diperbarui', 'success');
+        }
+
+        // Open delete face modal
+        function openDeleteFaceModal(userId, fullName, photoCount) {
+            deleteFaceUserId = userId;
+            document.getElementById('delete-face-user-name').textContent = fullName;
+            document.getElementById('delete-face-photo-count').textContent = photoCount;
+            document.getElementById('deleteFaceModal').classList.remove('hidden');
+        }
+
+        // Close delete face modal
+        function closeDeleteFaceModal() {
+            deleteFaceUserId = null;
+            document.getElementById('deleteFaceModal').classList.add('hidden');
+        }
+
+        // Confirm delete face data
+        async function confirmDeleteFaceData() {
+            if (!deleteFaceUserId) return;
+            
+            const confirmBtn = document.getElementById('confirm-delete-face-btn');
+            const originalText = confirmBtn.innerHTML;
+            
+            // Store user info for potential re-enrollment
+            const deletedUserId = deleteFaceUserId;
+            const deletedUserName = document.getElementById('delete-face-user-name').textContent;
+            
+            try {
+                confirmBtn.disabled = true;
+                confirmBtn.innerHTML = `
+                    <div class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <span>Menghapus...</span>
+                `;
+                
+                const response = await fetchWithAuth(`/api/admin/face/${deleteFaceUserId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    closeDeleteFaceModal();
+                    
+                    // Show success toast with re-enroll option
+                    showToastWithAction(
+                        'Data wajah berhasil dihapus', 
+                        'success',
+                        'Daftar Ulang',
+                        () => {
+                            // Auto-select user and scroll to enrollment form
+                            const select = document.getElementById('face-user-select');
+                            select.value = deletedUserId;
+                            select.dispatchEvent(new Event('change'));
+                            document.querySelector('#content-face').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    );
+                    
+                    // Refresh data
+                    await loadFaceStatistics();
+                    await loadEnrolledUsers();
+                    
+                    // If this user is currently selected, refresh their status
+                    if (selectedUserId === deleteFaceUserId) {
+                        await checkEnrollmentStatus(selectedUserId);
+                    }
+                } else {
+                    const data = await response.json();
+                    showToast(data.error || 'Gagal menghapus data wajah', 'error');
+                }
+                
+            } catch (error) {
+                console.error('Error deleting face data:', error);
+                showToast('Terjadi kesalahan saat menghapus data wajah', 'error');
+            } finally {
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = originalText;
+            }
         }
 
         // Load users into dropdown
@@ -1348,10 +2196,211 @@
                 
                 // Refresh enrollment status
                 await checkEnrollmentStatus(selectedUserId);
+                
+                // Refresh statistics and enrolled users list
+                await loadFaceStatistics();
+                await loadEnrolledUsers();
             } else {
                 showToast('Gagal menyimpan semua foto', 'error');
             }
         }
+        
+        // ========================================
+        // MODAL EVENT LISTENERS
+        // ========================================
+        
+        // Close delete face modal on click outside
+        document.getElementById('deleteFaceModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDeleteFaceModal();
+            }
+        });
+        
+        // Close modals on ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeDeleteFaceModal();
+            }
+        });
+
+        // ========================================
+        // LEAVE REQUESTS MANAGEMENT
+        // ========================================
+        
+        async function loadLeaveRequests() {
+            const container = document.getElementById('leave-requests-table');
+            const statusFilter = document.getElementById('leave-status-filter').value;
+            
+            container.innerHTML = '<div class="text-center py-8"><div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div></div>';
+            
+            try {
+                const url = `/api/admin/leave-requests${statusFilter ? `?status=${statusFilter}` : ''}`;
+                const response = await fetchWithAuth(url);
+                const data = await response.json();
+                
+                if (data.data && data.data.length > 0) {
+                    let html = '<table class="min-w-full divide-y divide-gray-200"><thead class="bg-gray-50"><tr>';
+                    html += '<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Karyawan</th>';
+                    html += '<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Jenis</th>';
+                    html += '<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tanggal</th>';
+                    html += '<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Alasan</th>';
+                    html += '<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>';
+                    html += '<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>';
+                    html += '</tr></thead><tbody class="bg-white divide-y divide-gray-200">';
+                    
+                    data.data.forEach(req => {
+                        let statusColor = 'bg-yellow-100 text-yellow-800';
+                        let statusText = 'Pending';
+                        if (req.status === 'approved') {
+                            statusColor = 'bg-green-100 text-green-800';
+                            statusText = 'Disetujui';
+                        } else if (req.status === 'rejected') {
+                            statusColor = 'bg-red-100 text-red-800';
+                            statusText = 'Ditolak';
+                        }
+                        
+                        const leaveDate = new Date(req.leave_date).toLocaleDateString('id-ID');
+                        const createdAt = new Date(req.created_at).toLocaleDateString('id-ID');
+                        
+                        html += '<tr class="hover:bg-gray-50">';
+                        html += `<td class="px-6 py-4 whitespace-nowrap">`;
+                        html += `<div class="text-sm font-medium text-gray-900">${req.full_name}</div>`;
+                        html += `<div class="text-sm text-gray-500">${req.username}</div>`;
+                        html += `</td>`;
+                        html += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 uppercase font-semibold">${req.leave_type}</td>`;
+                        html += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${leaveDate}</td>`;
+                        html += `<td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">${req.reason}</td>`;
+                        html += `<td class="px-6 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColor}">${statusText}</span></td>`;
+                        html += `<td class="px-6 py-4 whitespace-nowrap text-sm font-medium">`;
+                        html += `<button onclick='openReviewLeaveModal(${JSON.stringify(req)})' class="text-purple-600 hover:text-purple-800 transition" title="Tinjau">`;
+                        html += `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>`;
+                        html += `</button>`;
+                        html += `</td>`;
+                        html += '</tr>';
+                    });
+                    html += '</tbody></table>';
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = '<div class="text-center py-8 text-gray-500">Tidak ada permohonan izin</div>';
+                }
+            } catch (error) {
+                console.error('Error loading leave requests:', error);
+                container.innerHTML = '<div class="text-center py-8 text-red-500">Gagal memuat data</div>';
+            }
+        }
+        
+        function openReviewLeaveModal(request) {
+            // Populate modal with request data
+            document.getElementById('review-request-id').value = request.id;
+            document.getElementById('review-full-name').textContent = request.full_name;
+            document.getElementById('review-username').textContent = request.username;
+            document.getElementById('review-leave-type').textContent = request.leave_type;
+            document.getElementById('review-leave-date').textContent = new Date(request.leave_date).toLocaleDateString('id-ID');
+            document.getElementById('review-reason').textContent = request.reason;
+            document.getElementById('review-created-at').textContent = new Date(request.created_at).toLocaleString('id-ID');
+            
+            // Show proof file
+            const proofContainer = document.getElementById('review-proof-container');
+            if (request.proof_file) {
+                const ext = request.proof_file.split('.').pop().toLowerCase();
+                if (ext === 'pdf') {
+                    proofContainer.innerHTML = `<a href="/${request.proof_file}" target="_blank" class="text-purple-600 hover:text-purple-800 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        Lihat Bukti (PDF)
+                    </a>`;
+                } else {
+                    proofContainer.innerHTML = `<a href="/${request.proof_file}" target="_blank">
+                        <img src="/${request.proof_file}" alt="Bukti" class="max-w-xs rounded-lg border border-gray-300" />
+                    </a>`;
+                }
+            } else {
+                proofContainer.innerHTML = '<p class="text-gray-500">Tidak ada bukti</p>';
+            }
+            
+            // Disable form if already reviewed
+            const form = document.getElementById('reviewForm');
+            const submitBtn = document.getElementById('submit-review-btn');
+            if (request.status !== 'pending') {
+                form.querySelectorAll('input, textarea').forEach(el => el.disabled = true);
+                submitBtn.disabled = true;
+                submitBtn.textContent = `Sudah ${request.status === 'approved' ? 'Disetujui' : 'Ditolak'}`;
+                
+                // Show review info
+                if (request.reviewer_name) {
+                    const reviewInfo = document.createElement('div');
+                    reviewInfo.className = 'mt-4 p-4 bg-gray-50 rounded-lg';
+                    reviewInfo.innerHTML = `
+                        <p class="text-sm text-gray-600"><strong>Ditinjau oleh:</strong> ${request.reviewer_name}</p>
+                        <p class="text-sm text-gray-600"><strong>Pada:</strong> ${new Date(request.reviewed_at).toLocaleString('id-ID')}</p>
+                        ${request.review_notes ? `<p class="text-sm text-gray-600 mt-2"><strong>Catatan:</strong> ${request.review_notes}</p>` : ''}
+                    `;
+                    form.appendChild(reviewInfo);
+                }
+            } else {
+                form.querySelectorAll('input, textarea').forEach(el => el.disabled = false);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Kirim Keputusan';
+                // Reset form
+                form.reset();
+                document.getElementById('review-notes').value = '';
+            }
+            
+            // Show modal
+            document.getElementById('reviewLeaveModal').classList.remove('hidden');
+        }
+        
+        function closeReviewLeaveModal() {
+            document.getElementById('reviewLeaveModal').classList.add('hidden');
+            document.getElementById('reviewForm').reset();
+        }
+        
+        async function submitReview() {
+            const requestId = document.getElementById('review-request-id').value;
+            const status = document.querySelector('input[name="review-status"]:checked')?.value;
+            const reviewNotes = document.getElementById('review-notes').value;
+            
+            if (!status) {
+                showToast('Pilih keputusan (Setujui/Tolak)', 'error');
+                return;
+            }
+            
+            const btn = document.getElementById('submit-review-btn');
+            const originalHTML = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<div class="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>';
+            
+            try {
+                const response = await fetchWithAuth(`/api/admin/leave-requests/${requestId}/review`, {
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        status: status,
+                        review_notes: reviewNotes
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showToast(data.message, 'success');
+                    closeReviewLeaveModal();
+                    loadLeaveRequests();
+                } else {
+                    showToast(data.error || 'Gagal meninjau permohonan', 'error');
+                }
+            } catch (error) {
+                console.error('Error submitting review:', error);
+                showToast('Terjadi kesalahan. Silakan coba lagi.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHTML;
+            }
+        }
+        
+        // Make functions global
+        window.loadLeaveRequests = loadLeaveRequests;
+        window.openReviewLeaveModal = openReviewLeaveModal;
+        window.closeReviewLeaveModal = closeReviewLeaveModal;
+        window.submitReview = submitReview;
     </script>
 
     <!-- Load Webcam Module -->

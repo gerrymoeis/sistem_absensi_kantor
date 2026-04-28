@@ -11,6 +11,9 @@ type User struct {
 	IsActive            bool       `json:"is_active"`
 	FailedLoginAttempts int        `json:"-"` // Don't expose in API
 	LockedUntil         *time.Time `json:"-"` // Don't expose in API
+	FaceEnrolled        bool       `json:"face_enrolled"`
+	FaceEnrolledAt      *time.Time `json:"face_enrolled_at,omitempty"`
+	EnrollmentType      string     `json:"enrollment_type,omitempty"`
 	CreatedAt           time.Time  `json:"created_at"`
 	UpdatedAt           time.Time  `json:"updated_at"`
 }
