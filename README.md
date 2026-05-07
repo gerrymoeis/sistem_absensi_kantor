@@ -36,13 +36,128 @@ Sistem absensi berbasis web dengan face recognition, IP restriction, dan compreh
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Quick Start untuk Repository Clone
+
+### Prerequisites
+- Go 1.21+
+- MSYS2 (untuk face recognition)
+
+### Step 1: Clone dan Setup
+```bash
+# Clone repository
+git clone https://github.com/gerrymoeis/sistem_absensi_kantor.git
+cd sistem_absensi_kantor
+
+# ⚠️ PENTING: Masuk ke main_folder
+cd main_folder
+
+# Setup konfigurasi
+cp .env.example .env
+# Edit .env sesuai kebutuhan (opsional untuk testing lokal)
+```
+
+### Step 2: Build Aplikasi
+```bash
+# ✅ GUNAKAN BUILD SCRIPT (Recommended untuk face recognition)
+.\build_server.ps1
+
+# ❌ JANGAN gunakan manual build - akan error CGO:
+# go build -o absensi-server.exe .\cmd\server\
+```
+
+### Step 3: Setup Database & Admin User
+```bash
+# Jalankan seed untuk create admin user
+go run cmd/seed/main.go
+```
+
+### Step 4: Jalankan Server
+```bash
+# Start server
+.\absensi-server.exe
+
+# Akses aplikasi
+# Browser: http://localhost:8080
+```
+
+### Step 5: Login Pertama Kali
+```
+Username: admin
+Password: admin123
+```
+
+⚠️ **PENTING**: Ganti password setelah login pertama!
+
+---
+
+## 📋 Troubleshooting untuk New Users
+
+### "The system cannot find the path specified"
+**Problem**: Command dijalankan di folder yang salah
+
+**Solution**: 
+```bash
+# Pastikan berada di main_folder
+cd main_folder
+pwd  # Should show: .../sistem_absensi_kantor/main_folder
+```
+
+### "fatal error: dlib/graph_utils.h"
+**Problem**: Menggunakan manual build tanpa CGO setup
+
+**Solution**: 
+```bash
+# Gunakan build script yang handle CGO
+.\build_server.ps1
+```
+
+### "MSYS2 not found"
+**Problem**: MSYS2 belum terinstall
+
+**Solution**: 
+1. Download MSYS2: https://www.msys2.org/
+2. Install ke lokasi default: `C:\msys64`
+3. Jalankan build script lagi
+
+### Build berhasil tapi tidak ada file info
+**Problem**: Build script path issue (sudah diperbaiki di versi terbaru)
+
+**Solution**: Pull latest changes atau download ulang repository
+
+---
+
+## 🔨 Build Options
+
+### ✅ Recommended: Build Script
+```bash
+.\build_server.ps1
+```
+**Keuntungan**:
+- ✅ Handle CGO flags otomatis
+- ✅ Gunakan MSYS2 environment
+- ✅ Tampilkan build info
+- ✅ Support face recognition
+
+### ❌ Manual Build (Tidak Disarankan)
+```bash
+go build -o absensi-server.exe .\cmd\server\
+```
+**Masalah**:
+- ❌ CGO compilation errors
+- ❌ Face recognition tidak akan work
+- ❌ Missing MSYS2 environment
+
+**Kapan digunakan**: Hanya untuk versi basic tanpa face recognition
+
+---
+
+## 🚀 Quick Start (Original)
 
 ### Prerequisites
 - Go 1.21+
 - MINGW64 (untuk face recognition)
 
-### Installation
+### Installation (Original Codebase)
 ```bash
 # Clone repository
 git clone https://github.com/gerrymoeis/sistem_absensi_kantor.git
@@ -51,9 +166,6 @@ cd sistem_absensi_kantor/main_folder
 # Configure
 cp .env.example .env
 # Edit .env: JWT_SECRET, ALLOWED_IPS
-
-# Build (tanpa face recognition)
-go build -ldflags="-s -w" -o absensi-server.exe ./cmd/server
 
 # Build (dengan face recognition - butuh MINGW64)
 ./build_server.ps1

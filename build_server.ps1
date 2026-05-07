@@ -17,9 +17,10 @@ if (-not (Test-Path $msys2Path)) {
 Write-Host "Using MSYS2 MINGW64 for CGO compilation..." -ForegroundColor Green
 Write-Host ""
 
-# Build command
+# Build command - use current directory (portable for cloned repositories)
+$currentDir = (Get-Location).Path.Replace('\', '/')
 $buildCmd = @"
-cd '/d/Gerry/Programmer/Best Terbaik(2026)/Experiments/absensi_kantor_lokal/main_folder' && go build -ldflags='-s -w' -o absensi-server.exe ./cmd/server
+cd '$currentDir' && go build -ldflags='-s -w' -o absensi-server.exe ./cmd/server
 "@
 
 Write-Host "Building server..." -ForegroundColor Yellow
