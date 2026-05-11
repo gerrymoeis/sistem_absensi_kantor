@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"os"
 
 	"absensi-app/internal/config"
 	"absensi-app/internal/database"
@@ -11,7 +13,7 @@ import (
 )
 
 func main() {
-	log.Println("Starting database seeding...")
+	fmt.Fprintf(os.Stderr, "=== Absensi Database Seeding ===\n")
 
 	// Load configuration
 	cfg, err := config.Load()

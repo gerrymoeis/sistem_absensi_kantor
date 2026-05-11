@@ -101,7 +101,7 @@
             </div>
 
             <!-- Face Recognition Attendance Card -->
-            <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+            <div id="face-recognition-section" class="bg-white rounded-xl shadow-md p-6 mb-6">
                 <h2 class="text-xl font-bold text-gray-800 mb-4">Absensi dengan Face Recognition</h2>
                 
                 <p class="text-gray-600 mb-6">
@@ -235,6 +235,9 @@
             try {
                 const response = await fetchWithAuth('/api/absensi/today');
                 const data = await response.json();
+                
+                todayAbsenExists = !!data.data;
+                updateFaceSectionVisibility();
                 
                 const statusDiv = document.getElementById('today-status');
                 
@@ -605,21 +608,59 @@
         // ========================================
         
         let enrollmentStatus = { enrolled: false, encoding_count: 0 };
+        let faceEnrolled = false;
+        let todayAbsenExists = false;
+        
+        function updateFaceSectionVisibility() {
+            const section = document.getElementById('face-recognition-section');
+            if (!section) return;
+            if (faceEnrolled && !todayAbsenExists) {
+                section.classList.remove('hidden');
+            } else {
+                section.classList.add('hidden');
+            }
+        }
         
         async function checkEnrollmentStatus() {
             try {
                 const response = await fetchWithAuth('/api/face/status');
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        renderFaceUnavailable();
+                    }
+                    return;
+                }
                 const data = await response.json();
                 
                 enrollmentStatus = data;
+                faceEnrolled = data.enrolled;
                 renderEnrollmentStatus();
             } catch (error) {
                 console.error('Error checking enrollment status:', error);
             }
         }
         
+        function renderFaceUnavailable() {
+            const card = document.getElementById('enrollment-status-card');
+            card.innerHTML = `
+                <div class="bg-gray-50 border-2 border-gray-200 rounded-xl p-4">
+                    <div class="flex items-center gap-3">
+                        <svg class="w-8 h-8 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path>
+                        </svg>
+                        <div>
+                            <p class="font-bold text-gray-700">Fitur Face Recognition Tidak Aktif</p>
+                            <p class="text-sm text-gray-500">Atur FACE_RECOGNITION_ENABLED=true di .env untuk mengaktifkan</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('face-recognition-section').classList.add('hidden');
+        }
+        
         function renderEnrollmentStatus() {
             const card = document.getElementById('enrollment-status-card');
+            updateFaceSectionVisibility();
             
             if (enrollmentStatus.enrolled) {
                 // Enrolled - show success badge

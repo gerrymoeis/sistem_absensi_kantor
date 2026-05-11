@@ -67,8 +67,11 @@ cp .env.example .env
 
 ### Step 3: Setup Database & Admin User
 ```bash
-# Jalankan seed untuk create admin user
-go run cmd/seed/main.go
+# ✅ GUNAKAN SEED BINARY (sudah dibuild bersama server)
+.\seed.exe
+
+# ❌ JANGAN gunakan go run - akan error CGO:
+# go run cmd/seed/main.go
 ```
 
 ### Step 4: Jalankan Server
@@ -102,13 +105,27 @@ cd main_folder
 pwd  # Should show: .../sistem_absensi_kantor/main_folder
 ```
 
-### "fatal error: dlib/graph_utils.h"
+### "fatal error: dlib/graph_utils.h" saat build
 **Problem**: Menggunakan manual build tanpa CGO setup
 
 **Solution**: 
 ```bash
 # Gunakan build script yang handle CGO
 .\build_server.ps1
+```
+
+### "fatal error: dlib/graph_utils.h" saat go run cmd/seed
+**Problem**: `go run` berjalan di PowerShell/CMD biasa, bukan di MSYS2
+
+**Solution**: 
+```bash
+# ✅ Gunakan seed binary yang sudah dibuild bersama server
+.\seed.exe
+
+# Atau jalankan go run dari dalam MSYS2 MINGW64 shell:
+# Buka C:\msys64\msys2_shell.cmd -mingw64
+# cd ke folder project
+# go run cmd/seed/main.go
 ```
 
 ### "MSYS2 not found"
@@ -168,10 +185,11 @@ cp .env.example .env
 # Edit .env: JWT_SECRET, ALLOWED_IPS
 
 # Build (dengan face recognition - butuh MINGW64)
+# build_server.ps1 akan build BOTH absensi-server.exe DAN seed.exe
 ./build_server.ps1
 
-# Create admin user
-go run cmd/seed/main.go
+# Create admin user (gunakan binary hasil build, jangan go run)
+./seed.exe
 
 # Run
 ./absensi-server.exe

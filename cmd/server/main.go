@@ -1,7 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"os"
+	"path/filepath"
 
 	"absensi-app/internal/config"
 	"absensi-app/internal/database"
@@ -28,6 +31,14 @@ func securityHeaders() gin.HandlerFunc {
 }
 
 func main() {
+	fmt.Fprintf(os.Stderr, "=== Absensi Server starting ===\n")
+
+	// Ensure logs directory exists (not tracked by git, missing in fresh clones)
+	logDir := filepath.Dir("./logs/app.log")
+	if err := os.MkdirAll(logDir, 0755); err != nil {
+		log.Fatalf("Failed to create logs directory: %v", err)
+	}
+
 	// Load .env file
 	if err := godotenv.Load(); err != nil {
 		log.Println("Warning: .env file not found, using defaults")
