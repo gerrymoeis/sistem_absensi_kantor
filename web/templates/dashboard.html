@@ -236,6 +236,9 @@
                 const response = await fetchWithAuth('/api/absensi/today');
                 const data = await response.json();
                 
+                todayAbsenExists = !!data.data;
+                updateFaceSectionVisibility();
+                
                 const statusDiv = document.getElementById('today-status');
                 
                 if (data.data) {
@@ -605,6 +608,18 @@
         // ========================================
         
         let enrollmentStatus = { enrolled: false, encoding_count: 0 };
+        let faceEnrolled = false;
+        let todayAbsenExists = false;
+        
+        function updateFaceSectionVisibility() {
+            const section = document.getElementById('face-recognition-section');
+            if (!section) return;
+            if (faceEnrolled && !todayAbsenExists) {
+                section.classList.remove('hidden');
+            } else {
+                section.classList.add('hidden');
+            }
+        }
         
         async function checkEnrollmentStatus() {
             try {
@@ -618,6 +633,7 @@
                 const data = await response.json();
                 
                 enrollmentStatus = data;
+                faceEnrolled = data.enrolled;
                 renderEnrollmentStatus();
             } catch (error) {
                 console.error('Error checking enrollment status:', error);
@@ -644,6 +660,7 @@
         
         function renderEnrollmentStatus() {
             const card = document.getElementById('enrollment-status-card');
+            updateFaceSectionVisibility();
             
             if (enrollmentStatus.enrolled) {
                 // Enrolled - show success badge
