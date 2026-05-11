@@ -4,6 +4,14 @@
 *.dll
 *.so
 *.dylib
+
+# MSYS2 runtime DLLs (copied by build script for standalone execution)
+/libgcc_s_seh-1.dll
+/libstdc++-6.dll
+/libwinpthread-1.dll
+/libdlib.dll
+/libopenblas.dll
+/libjpeg-8.dll
 absensi-server
 absensi-server.exe
 seed.exe

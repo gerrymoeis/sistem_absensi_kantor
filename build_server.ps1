@@ -64,6 +64,28 @@ if ($LASTEXITCODE -eq 0) {
         Write-Host "   Size: $([math]::Round($seedSize, 2)) MB" -ForegroundColor Cyan
     }
     
+    # Copy required MSYS2 runtime DLLs so binaries run outside MSYS2
+    Write-Host ""
+    Write-Host "Copying MSYS2 runtime DLLs..." -ForegroundColor Yellow
+    $msys2Bin = "C:\msys64\mingw64\bin"
+    $requiredDlls = @(
+        "libgcc_s_seh-1.dll",
+        "libstdc++-6.dll",
+        "libwinpthread-1.dll",
+        "libdlib.dll",
+        "libopenblas.dll",
+        "libjpeg-8.dll"
+    )
+    $copiedCount = 0
+    foreach ($dll in $requiredDlls) {
+        $src = Join-Path $msys2Bin $dll
+        if (Test-Path $src) {
+            Copy-Item -Path $src -Destination ".\$dll" -Force
+            $copiedCount++
+        }
+    }
+    Write-Host "   Copied $copiedCount DLLs to current directory" -ForegroundColor Cyan
+    
     Write-Host ""
     Write-Host "========================================" -ForegroundColor Cyan
     Write-Host "All builds completed!" -ForegroundColor Cyan
